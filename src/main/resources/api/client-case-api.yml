@@ -1,0 +1,1610 @@
+openapi: 3.0.0
+info:
+  title: RMA_RestAPI_Design_1
+  description: "Customer Requirements from Excel Document RMA_RestAPI_Design 1.xlsx"
+  version: 0.0.6
+tags:
+  - name: TAC_Case
+  - name: RMA_Case
+paths:
+  /tacCases:
+    get:
+      operationId: listTacCases
+      summary: List or find TAC Cases
+      description: This operation list or find TACCase entities
+      tags:
+        - TAC_Case
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/CreatedFrom'
+        - $ref: '#/components/parameters/CreatedTo'
+        - $ref: '#/components/parameters/CreatedSince'
+        - $ref: '#/components/parameters/CaseStatus'
+        - $ref: '#/components/parameters/IncludeNotes'
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Result-Count:
+              description: Actual number of Cases returned in the response body
+              schema:
+                type: integer
+            X-Total-Count:
+              description: Total number of Cases matching criteria
+              schema:
+                type: integer
+          content:
+            application/json;charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TacCase'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      operationId: createTacCase
+      summary: Creates a TAC Case
+      description: This operation creates a tacCase entity.
+      tags:
+        - TAC_Case
+      requestBody:
+        content:
+          application/json;charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/TacCase_Create'
+        description: Creates a TAC Case
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/TacCase'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tacCases/{caseNumber}:
+    get:
+      operationId: retrieveTacCase
+      summary: Retrieves a TAC Case by ID
+      description: >-
+        This operation retrieves a tacCase entity. Attribute selection is
+        enabled for all first level attributes.
+      tags:
+        - TAC_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/IncludeNotes'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/TacCase'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      operationId: updateTacCase
+      summary: Updates a TAC Case by ID
+      description: >-
+        This operation updates a tacCase entity. Attribute selection is
+        enabled for all first level attributes.
+      tags:
+        - TAC_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+      requestBody:
+        content:
+          application/json;charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/TacCase'
+        description: Updates to the TAC Case
+        required: true
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tacCases/{caseNumber}/notes:
+    get:
+      summary: Get notes for a specific TAC Case
+      description: "Retrieve a list of notes attached to a specific item by its TAC Case Number."
+      operationId: getTacCaseNotes
+      tags:
+        - TAC_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/CreatedFrom'
+        - $ref: '#/components/parameters/CreatedTo'
+        - $ref: '#/components/parameters/CreatedSince'
+      responses:
+        '200':
+          description: "A list of notes attached to the TAC Case."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      operationId: createTacCaseNote
+      summary: Creates a note assocated with a TAC Case
+      description: This operation creates adds a Case Note to a TAC Case
+      tags:
+        - TAC_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+      requestBody:
+        content:
+          application/json;charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/Note_Create'
+        description: Created Case Note
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tacCases/{caseNumber}/notes/{id}:
+    get:
+      operationId: retrieveTacCaseNote
+      summary: Retrieves a TAC Case Note by ID
+      description: This operation retrieves a CaseNote entity. Attribute selection is enabled for all first level attributes.
+      tags:
+        - TAC_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      operationId: updateTacCaseNote
+      summary: Updates a TAC Case Note by ID
+      description: >-
+        This operation updates a TAC Case Note. Attribute selection is enabled for all first level attributes.
+      tags:
+        - TAC_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        content:
+          application/json;charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/Note'
+        description: Updated Note for a TAC Case
+        required: true
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tacCases/{caseNumber}/attachments:
+    get:
+      operationId: getTacCaseAttachments
+      summary: Get a list of attachments for a specific TAC case
+      tags:
+        - TAC_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: A list of attachments associated with the TAC case.
+          headers:
+            X-Result-Count:
+              description: Actual number of items returned in the response body
+              schema:
+                type: integer
+            X-Total-Count:
+              description: Total number of items matching criteria
+              schema:
+                type: integer
+          content:
+            application/json;charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attachment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      operationId: uploadTacCaseAttachment
+      summary: Upload an attachment to a specific TAC case
+      tags:
+        - TAC_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+      requestBody:
+        description: Attachment file to upload
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                description:
+                  type: string
+                  description: Optional description of the attachment
+      responses:
+        '201':
+          description: Attachment successfully uploaded.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  attachmentId:
+                    type: string
+                    description: The unique identifier of the uploaded attachment
+                  href:
+                    type: string
+                    format: uri
+                    description: The URL to access the uploaded attachment
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /tacCases/{caseNumber}/attachments/{id}:
+    get:
+      operationId: retrieveTacCaseAttachment
+      summary: Retrieves a TAC Case Attachment by ID
+      description: This operation retrieves an TAC Case Attachment
+      tags:
+        - TAC_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/ID'
+        - $ref: '#/components/parameters/Fields'
+      responses:
+        '200':
+          description: An attachment associated a TAC case
+          headers:
+            X-Result-Count:
+              description: Actual number of attachments returned in the response body
+              schema:
+                type: integer
+                minimum: 0
+                maximum: 1
+            X-Total-Count:
+              description: Total number of items matching criteria
+              schema:
+                type: integer
+                minimum: 0
+                maximum: 1
+          content:
+            application/json;charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attachment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rmaCases:
+    get:
+      operationId: listRmaCases
+      summary: List or find RMA Cases
+      description: This operation list or find RMA Cases
+      tags:
+        - RMA_Case
+      parameters:
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/CreatedFrom'
+        - $ref: '#/components/parameters/CreatedTo'
+        - $ref: '#/components/parameters/CreatedSince'
+        - $ref: '#/components/parameters/CaseStatus'
+        - $ref: '#/components/parameters/VendorRmaNumber'
+        - $ref: '#/components/parameters/IncludeNotes'
+      responses:
+        '200':
+          description: Success
+          headers:
+            X-Result-Count:
+              description: Actual number of items returned in the response body
+              schema:
+                type: integer
+            X-Total-Count:
+              description: Total number of items matching criteria
+              schema:
+                type: integer
+          content:
+            application/json;charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RmaCase'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      operationId: createTacRma
+      summary: Creates an RMA Case
+      description: This operation creates an RMA Case.
+      tags:
+        - RMA_Case
+      requestBody:
+        content:
+          application/json;charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/RmaCase_Create'
+        description: The RMA Case to create
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/RmaCase'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rmaCases/{caseNumber}:
+    get:
+      operationId: retrieveRmaCase
+      summary: Retrieves an RMA Case by ID
+      description: This operation retrieves a RmaCase entity. Attribute selection is enabled for all first level attributes.
+      tags:
+        - RMA_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/Fields'
+        - $ref: '#/components/parameters/IncludeNotes'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/RmaCase'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      operationId: updateRmaCase
+      summary: Updates an RMA Case by ID
+      description: This operation updates a RmaCase entity. Attribute selection is enabled for all first level attributes.
+      tags:
+        - RMA_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+      requestBody:
+        content:
+          application/json;charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/RmaCase'
+        description: Updated the associated RMA Case
+        required: true
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rmaCases/{caseNumber}/notes:
+    get:
+      summary: Get notes for a specific RMA
+      description: "Retrieve a list of notes attached to a specific RMA Case by its case number."
+      operationId: getRmaCaseNotes
+      tags:
+        - RMA_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/CreatedFrom'
+        - $ref: '#/components/parameters/CreatedTo'
+        - $ref: '#/components/parameters/CreatedSince'
+      responses:
+        '200':
+          description: "A list of notes attached to the specified RMA Case."
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      operationId: createRmaCaseNote
+      summary: Creates a note assocated with a RMA Case
+      description: This operation creates adds a Case Note to a TAC Case
+      tags:
+        - RMA_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+      requestBody:
+        content:
+          application/json;charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/Note_Create'
+        description: A new Case Note for this RMA
+        required: true
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rmaCases/{caseNumber}/notes/{id}:
+    get:
+      operationId: retrieveRmaCaseNote
+      summary: Retrieves an RMA Case Note by ID
+      description: "This operation retrieves an RMA CaseNote. Attribute selection is enabled for all first level attributes."
+      tags:
+        - RMA_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json;charset=utf-8:
+              schema:
+                $ref: '#/components/schemas/Note'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    put:
+      operationId: updateRmaCaseNote
+      summary: Updates an RMA Case Note by ID
+      description: "This operation updates an RMA Case Note. Attribute selection is enabled for all first level attributes."
+      tags:
+        - RMA_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/ID'
+      requestBody:
+        content:
+          application/json;charset=utf-8:
+            schema:
+              $ref: '#/components/schemas/Note'
+        description: An update to an RMA Case Note
+        required: true
+      responses:
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '405':
+          $ref: '#/components/responses/MethodNotAllowed'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rmaCases/{caseNumber}/attachments:
+    get:
+      operationId: getRmaCaseAttachments
+      summary: Get a list of attachments for a specific RMA case
+      tags:
+        - RMA_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/Offset'
+        - $ref: '#/components/parameters/Limit'
+      responses:
+        '200':
+          description: A list of attachments associated with the RMA case.
+          headers:
+            X-Result-Count:
+              description: Actual number of items returned in the response body
+              schema:
+                type: integer
+            X-Total-Count:
+              description: Total number of items matching criteria
+              schema:
+                type: integer
+          content:
+            application/json;charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attachment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      operationId: uploadRmaCaseAttachment
+      summary: Upload an attachment to a specific RMA case
+      tags:
+        - RMA_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+      requestBody:
+        description: Attachment file to upload
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                description:
+                  type: string
+                  description: Optional description of the attachment
+      responses:
+        '201':
+          description: Attachment successfully uploaded.
+          content:
+            application/json;charset=utf-8:
+              schema:
+                type: object
+                properties:
+                  attachmentId:
+                    type: string
+                    description: The unique identifier of the uploaded attachment
+                  href:
+                    type: string
+                    format: uri
+                    description: The URL to access the uploaded attachment
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /rmaCases/{caseNumber}/attachments/{id}:
+    get:
+      operationId: retrieveRmaCaseAttachment
+      summary: Retrieves an RMA Case Attachment by ID
+      description: This operation retrieves an RMA Case Attachment
+      tags:
+        - RMA_Case
+      parameters:
+        - $ref: '#/components/parameters/CaseNumber'
+        - $ref: '#/components/parameters/ID'
+      responses:
+        '200':
+          description: An attachment associated a RMA case
+          headers:
+            X-Result-Count:
+              description: Actual number of attachments returned in the response body
+              schema:
+                type: integer
+                minimum: 0
+                maximum: 1
+            X-Total-Count:
+              description: Total number of items matching criteria
+              schema:
+                type: integer
+                minimum: 0
+                maximum: 1
+          content:
+            application/json;charset=utf-8:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Attachment'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+servers:
+  # Added by API Auto Mocking Plugin
+  - url: https://localhost/api/v1
+    description: localhost
+#  - url: https://virtserver.swaggerhub.com/MolexDev/tac-cases-openapi-3.0/0.0.6
+
+components:
+  parameters:
+
+    ID:
+      name: id
+      description: "The unique identifier of an entity."
+      required: true
+      in: path
+      schema:
+        type: string
+
+    CaseNumber:
+      name: caseNumber
+      description: "Identifier of the Case. This may be an alias for the ID of the proxied Case."
+      required: true
+      in: path
+      schema:
+        type: string
+
+    Fields:
+      name: fields
+      description: Comma-separated properties to be provided in response
+      required: false
+      in: query
+      schema:
+        type: string
+
+    IncludeNotes:
+      name: includeNotes
+      description: Use this flag to include Case Notes
+      required: false
+      in: query
+      schema:
+        type: boolean
+        default: false
+
+    Offset:
+      name: offset
+      description: Requested index for start of items to be provided in response
+      required: false
+      in: query
+      schema:
+        type: integer
+
+    Limit:
+      name: limit
+      description: Requested number of items to be provided in response
+      required: false
+      in: query
+      schema:
+        type: integer
+
+    CreatedFrom:
+      name: createdFrom
+      description: Beginning date portion of a date range query to search for a matching set of items
+      required: false
+      in: query
+      schema:
+        type: string
+        format: date-time
+
+    CreatedTo:
+      name: createdTo
+      description: Ending date portion of a date range query to search for a matching set of items
+      required: false
+      in: query
+      schema:
+        type: string
+        format: date-time
+
+    CreatedSince:
+      name: createdSince
+      description: Retrieve the set of items created since this date
+      required: false
+      in: query
+      schema:
+        type: string
+        format: date-time
+
+    CaseStatus:
+      name: caseStatus
+      description: Retrieve the set of cases with this status
+      required: false
+      in: query
+      schema:
+        $ref: '#/components/schemas/TacCaseStatus'
+
+    VendorRmaNumber:
+      name: vendorRmaNumber
+      description: Retrieve the set of cases with this RMA number
+      required: false
+      in: query
+      schema:
+        type: string
+
+  schemas:
+
+    CommonCreateCaseProperties:
+      type: object
+      properties:
+        requestDate:
+          type: string
+          format: date-time
+          description: The date on which the TAC Case create was requested
+        requestorOrganization:
+          type: string
+          description: The Organization that is requesting the TAC Case
+          example: MSFT
+        requestorFirstName:
+          type: string
+        requestorLastName:
+          type: string
+        requestorEmail:
+          format: email
+        requestorPhone:
+          format: phone
+        installationCountry:
+          type: string
+          format: country
+        networkStatus:
+          type: string
+          enum:
+            - "Production"
+            - "Test"
+            - "Development"
+        businessImpact:
+          type: string
+          description: "The impact to the customer's business associated with this Case"
+          example: "Critical level business impacting issue"
+        subject:
+          type: string
+          description: Subject of TAC Case
+        problemDescription:
+          type: string
+          description: Description of the issue in this case
+        productName:
+          type: string
+          description: The name of the product associated with this TAC Case
+        productSerialNumber:
+          type: string
+          description: The serial number of the product associated with this TAC Case
+        productFirmwareVersion:
+          type: string
+          description: The version number of the product associated with this TAC Case
+        productSoftwareVersion:
+          type: string
+          description: The version number of the product associated with this TAC Case
+        outageStartTime:
+          type: string
+          description: The date and time that the outage associated with this case was detected
+          format: date-time
+        outageRecoveryTime:
+          type: string
+          description: The date and time that the outage associated with this case was recovered
+          format: date-time
+        customerTrackingNumber:
+          type: string
+          description: "A Reference to the customer's issue associated with this Case"
+
+    CommonNoteProperties:
+      type: object
+      properties:
+        author:
+          type: string
+          description: Author of the note
+        date:
+          type: string
+          format: date-time
+          description: Date of the note
+        text:
+          type: string
+          description: Text of the note
+
+    RmaCase:
+      type: object
+      description: An RMA Case
+      properties:
+        id:
+          type: string
+        href:
+          type: string
+        caseNumber:
+          type: string
+        caseId:
+          type: string
+        relatedTacCaseId:
+          type: string
+        requestType:
+          type: string
+        newPartSerialNumber:
+          type: string
+        faultySerialNumber:
+          type: string
+        faultyPartNumber:
+          type: string
+        returnedSerialNumber:
+          type: string
+        returnedPartNumber:
+          type: string
+        caseStatus:
+          $ref: '#/components/schemas/TacCaseStatus'
+        newPartShippedDate:
+          type: string
+          format: date-time
+        newPartDeliveredDate:
+          type: string
+          format: date-time
+        faultyPartShippedDate:
+          type: string
+          format: date-time
+        faultyPartDeliveredDate:
+          type: string
+          format: date-time
+        failureAnalysisStartDate:
+          type: string
+          format: date-time
+        failureAnalysisInProgressDate:
+          type: string
+          format: date-time
+        failureAnalysisFinishedDate:
+          type: string
+          format: date-time
+        shipToStreet1:
+          type: string
+        shipToProvince:
+          type: string
+        shipToPostalCode:
+          type: string
+        shipToPhone:
+          type: string
+          format: phone
+        shipToCountry:
+          type: string
+          format: country
+        shipToCity:
+          type: string
+        shipToContactEmail:
+          type: string
+          format: email
+        shipToAttention:
+          type: string
+        shippedDate:
+          type: string
+        shippedCarrier:
+          type: string
+        problemDescription:
+          type: string
+        installationCountry:
+          type: string
+          format: country
+        customerTrackingNumber:
+          type: string
+        contactEmail:
+          type: string
+          format: email
+        vendorRmaNumber:
+          type: string
+          format: integer
+
+    RmaCase_Create:
+      type: object
+      description: >-
+        A TAC Case is a record of an issue that is created, tracked, and
+        managed by the TAC Case management system
+        Skipped properties: id
+      required:
+        - requestDate
+      allOf:
+        - $ref: '#/components/schemas/CommonCreateCaseProperties'
+        - type: object
+      properties:
+        relatedTacCaseId:
+          type: string
+          description: This assumes that an RMA case is a child case to an existing TAC Case
+        faultySerialNumber:
+          type: string
+          description: "This is the serial number of the faulty device requiring the RMA"
+        requesterShippingFirstName:
+          type: string
+        requesterShippingLastName:
+          type: string
+        requesterShippingEmail:
+          type: string
+          format: email
+        requesterShippingPhone:
+          type: string
+          format: phone
+        requesterShippingStreet:
+          type: string
+        requesterShippingCity:
+          type: string
+        requesterShippingStateProvince:
+          type: string
+        requesterShippingCountry:
+          type: string
+        requesterShippingPostalCode:
+          type: string
+        shippingInboundId:
+          type: string
+        shippingOutboundId:
+          type: string
+
+    TacCase:
+      type: object
+      description: A TAC Case
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the TAC Case
+        href:
+          type: string
+          description: Hyperlink, a reference to the TAC Case entity
+        caseNumber:
+          type: string
+          description: Same as ID, requested by customer
+        caseStatus:
+          $ref: '#/components/schemas/TacCaseStatus'
+        rmaNeeded:
+          type: boolean
+          description: TAC indicates RMA is required
+        subject:
+          type: string
+          description: Subject of TAC Case
+        relatedRmaCount:
+          type: integer
+          description: Number of RMAs related to this TAC Case
+        relatedDispatchCount:
+          type: integer
+          description: Number of dispatches related to this TAC Case
+        problemDescription:
+          type: string
+          description: A description of the problem assocated with this TAC Case
+        installationCountry:
+          type: string
+          minLength: 2
+          maxLength: 2
+          example: US
+        firstResponseDate:
+          type: string
+          format: date-time
+          description: The date of first response from the TAC to this Case
+          example: "2021-01-30T08:30:00Z"
+        customerTrackingNumber:
+          type: string
+          description: "A Reference to the customer's issue associated with this Case"
+        contactEmail:
+          type: string
+          description: The email of the customer contact related to this Case
+          format: email
+        productName:
+          type: string
+          description: The name of the product associated with this TAC Case
+        productSerialNumber:
+          type: string
+          description: The serial number of the product associcated with this TAC Case
+        productFirmwareVersion:
+          type: string
+          description: The version number of the product associcated with this TAC Case
+        productSoftwareVersion:
+          type: string
+          description: The version number of the product associcated with this TAC Case
+        caseSolutionDescription:
+          type: string
+          description: A general summary of the solution to this Case
+        casePriority:
+          type: string
+          description: The priorty assigned by TAC to this Case
+          enum:
+            - Critical
+            - Major
+            - Minor
+        caseOwner:
+          type: string
+          description: The TAC name associated with the ownership of this Case
+        caseNoteCount:
+          type: integer
+          description: The number of notes associated with this Case
+        caseCreatedDate:
+          type: string
+          description: The date this Case was created by Customer
+          format: date-time
+        caseClosedDate:
+          type: string
+          description: The date this Case was closed by Customer or TAC
+          format: date-time
+        businessImpact:
+          type: string
+          description: "The impact to the customer's business associated with this Case"
+          example: "Critical level business impacting issue"
+        accountNumber:
+          type: string
+          description: "The customer's account number associated with this Case"
+        faultySerialNumber:
+          type: string
+        faultyPartNumber:
+          type: string
+        notes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Note'
+          nullable: true
+
+    TacCase_Create:
+      type: object
+      description: >-
+        A TAC Case is a record of an issue that is created, tracked, and managed by the TAC management system
+        Skipped properties: id,href
+      required:
+        - requestDate
+      allOf:
+        - $ref: '#/components/schemas/CommonCreateCaseProperties'
+
+    Note:
+      type: object
+      description: Extra information about a given TAC Case
+      properties:
+        id:
+          type: string
+          description: >-
+            Identifier of the note within its containing Case (may or may not be globally unique, depending on provider implementation)
+      allOf:
+        - $ref: '#/components/schemas/CommonNoteProperties'
+        - type: object
+
+    Note_Create:
+      type: object
+      description: Extra information about a given TAC Case
+      properties:
+        author:
+          type: string
+          description: Author of the note
+        date:
+          type: string
+          format: date-time
+          description: Date of the note
+        text:
+          type: string
+          description: Text of the note
+
+    Attachment:
+      type: object
+      description: >-
+        Complements the description of an element (for instance a product)
+        through video, pictures...
+      properties:
+        id:
+          type: string
+          description: Unique identifier for this particular attachment
+        href:
+          type: string
+          description: URI for this Attachment
+        attachmentType:
+          type: string
+          description: Attachment type such as video, picture
+        content:
+          type: string
+          description: >-
+            The actual contents of the attachment object, if embedded, encoded
+            as base64
+        description:
+          type: string
+          description: A narrative text describing the content of the attachment
+        mimeType:
+          type: string
+          description: >-
+            Attachment mime type such as extension file for video, picture and
+            document
+        name:
+          type: string
+          description: The name of the attachment
+        url:
+          type: string
+          description: Uniform Resource Locator, is a web page address (a subset of URI)
+        size:
+          $ref: '#/components/schemas/Quantity'
+        validFor:
+          $ref: '#/components/schemas/TimePeriod'
+        '@baseType':
+          type: string
+          description: When sub-classing, this defines the super-class
+        '@schemaLocation':
+          type: string
+          format: uri
+          description: >-
+            A URI to a JSON-Schema file that defines additional attributes and
+            relationships
+        '@type':
+          type: string
+          description: When sub-classing, this defines the sub-class entity name
+
+    AttachmentRef:
+      type: object
+      description: >-
+        Attachment reference. An attachment complements the description of an
+        element (for instance a product) through video, pictures
+      properties:
+        id:
+          type: string
+          description: Unique-Identifier for this attachment
+        href:
+          type: string
+          description: URL serving as reference for the attachment resource
+        description:
+          type: string
+          description: A narrative text describing the content of the attachment
+        name:
+          type: string
+          description: Name of the related entity.
+        url:
+          type: string
+          description: Link to the attachment media/content
+        '@baseType':
+          type: string
+          description: When sub-classing, this defines the super-class
+        '@schemaLocation':
+          type: string
+          format: uri
+          description: >-
+            A URI to a JSON-Schema file that defines additional attributes and
+            relationships
+        '@type':
+          type: string
+          description: When sub-classing, this defines the sub-class entity name
+        '@referredType':
+          type: string
+          description: >-
+            The actual type of the target instance when needed for
+            disambiguation.
+      required:
+        - id
+
+    AttachmentRefOrValue:
+      type: object
+      description: >-
+        An attachment by value or by reference. For AttachmentRefOrValue, the
+        attribute type,schemaLocation and referredType are related to the
+        contained entity and not to AttchmentRefOrValue itself
+      properties:
+        id:
+          type: string
+          description: Unique identifier for this particular attachment
+        href:
+          type: string
+          description: URI for this Attachment
+        attachmentType:
+          type: string
+          description: Attachment type such as video, picture
+        content:
+          type: string
+          description: >-
+            The actual contents of the attachment object, if embedded, encoded
+            as base64
+        description:
+          type: string
+          description: A narrative text describing the content of the attachment
+        mimeType:
+          type: string
+          description: >-
+            Attachment mime type such as extension file for video, picture and
+            document
+        name:
+          type: string
+          description: The name of the attachment
+        url:
+          type: string
+          description: Uniform Resource Locator, is a web page address (a subset of URI)
+        size:
+          $ref: '#/components/schemas/Quantity'
+        validFor:
+          $ref: '#/components/schemas/TimePeriod'
+        '@baseType':
+          type: string
+          description: When sub-classing, this defines the super-class
+        '@schemaLocation':
+          type: string
+          format: uri
+          description: >-
+            A URI to a JSON-Schema file that defines additional attributes and
+            relationships
+        '@type':
+          type: string
+          description: When sub-classing, this defines the sub-class entity name
+        '@referredType':
+          type: string
+          description: >-
+            The actual type of the target instance when needed for
+            disambiguation.
+
+    Quantity:
+      type: object
+      description: An amount in a given unit
+      properties:
+        amount:
+          default: 1
+          type: number
+          format: float
+          description: Numeric value in a given unit
+        units:
+          type: string
+          description: Unit
+
+
+    TimePeriod:
+      type: object
+      description: >-
+        A period of time, either as a deadline (endDateTime only) a
+        startDateTime only, or both
+      properties:
+        endDateTime:
+          type: string
+          format: date-time
+          description: End of the time period, using IETC-RFC-3339 format
+        startDateTime:
+          type: string
+          format: date-time
+          description: >-
+            Start of the time period, using IETC-RFC-3339 format. If you define
+            a start, you must also define an end
+
+
+    CaseRelationship:
+      type: object
+      description: Represents a relationship between trouble Cases
+      properties:
+        id:
+          type: string
+          description: Unique identifier of the Case
+        href:
+          type: string
+          description: URI Reference of the Case
+        name:
+          type: string
+          description: Name of the Case Relationship
+        relationshipType:
+          type: string
+          description: >-
+            Type of the Case relationship can be isChiled, dependent
+            etc...
+        '@baseType':
+          type: string
+          description: When sub-classing, this defines the super-class
+        '@schemaLocation':
+          type: string
+          format: uri
+          description: >-
+            A URI to a JSON-Schema file that defines additional attributes and
+            relationships
+        '@type':
+          type: string
+          description: When sub-classing, this defines the sub-class entity name
+
+    TacCaseStatus:
+      type: string
+      description: Possible values for the status of the TAC Case
+      enum:
+        - open
+        - acknowledged
+        - rejected
+        - pending
+        - held
+        - inprogress
+        - cancelled
+        - closed
+        - resolved
+
+    Error:
+      description: >-
+        Used when an API throws an Error, typically with a HTTP error
+        response-code (3xx, 4xx, 5xx)
+      type: object
+      required:
+        - code
+        - reason
+      properties:
+        code:
+          type: string
+          description: Application relevant detail, defined in the API or a common list.
+        reason:
+          type: string
+          description: >-
+            Explanation of the reason for the error which can be shown to a
+            client user.
+        message:
+          type: string
+          description: >-
+            More details and corrective actions related to the error which can
+            be shown to a client user.
+        status:
+          type: string
+          description: HTTP Error code extension
+        referenceError:
+          type: string
+          format: uri
+          description: URI of documentation describing the error.
+        '@baseType':
+          type: string
+          description: When sub-classing, this defines the super-class.
+        '@schemaLocation':
+          type: string
+          format: uri
+          description: >-
+            A URI to a JSON-Schema file that defines additional attributes and
+            relationships
+        '@type':
+          type: string
+          description: When sub-classing, this defines the sub-class entity name.
+
+  responses:
+    BadRequest:
+      description: Bad Request
+      content:
+        application/json;charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json;charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json;charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Not Found
+      content:
+        application/json;charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    MethodNotAllowed:
+      description: Method Not Allowed
+      content:
+        application/json;charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Conflict:
+      description: Conflict
+      content:
+        application/json;charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal Server Error
+      content:
+        application/json;charset=utf-8:
+          schema:
+            $ref: '#/components/schemas/Error'
