@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: RMA_RestAPI_Design_1
   description: "Customer Requirements from Excel Document RMA_RestAPI_Design 1.xlsx"
-  version: 0.0.6
+  version: 0.0.7
 tags:
   - name: TAC_Case
   - name: RMA_Case
@@ -844,6 +844,9 @@ paths:
 
 servers:
   # Added by API Auto Mocking Plugin
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/MolexDev/tac-cases-openapi-3.0/0.0.7
   - url: https://localhost/api/v1
     description: localhost
 #  - url: https://virtserver.swaggerhub.com/MolexDev/tac-cases-openapi-3.0/0.0.6
@@ -1023,10 +1026,12 @@ components:
 
     RmaCase:
       type: object
+      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "rma_cases")'
       description: An RMA Case
       properties:
         id:
           type: string
+          x-field-extra-annotation: "@jakarta.persistence.Id"
         href:
           type: string
         caseNumber:
@@ -1152,10 +1157,12 @@ components:
 
     TacCase:
       type: object
+      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "tac_cases")'
       description: A TAC Case
       properties:
         id:
           type: string
+          x-field-extra-annotation: "@jakarta.persistence.Id"
           description: Unique identifier of the TAC Case
         href:
           type: string
@@ -1253,8 +1260,7 @@ components:
     TacCase_Create:
       type: object
       description: >-
-        A TAC Case is a record of an issue that is created, tracked, and managed by the TAC management system
-        Skipped properties: id,href
+        A TAC Case is a record of an issue that is created, tracked, and managed by the TAC management system Skipped properties: id,href
       required:
         - requestDate
       allOf:
@@ -1262,12 +1268,13 @@ components:
 
     Note:
       type: object
+      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "notes")'
       description: Extra information about a given TAC Case
       properties:
         id:
           type: string
-          description: >-
-            Identifier of the note within its containing Case (may or may not be globally unique, depending on provider implementation)
+          x-field-extra-annotation: "@jakarta.persistence.Id"
+          description: Identifier of the note within its containing Case (may or may not be globally unique, depending on provider implementation)
       allOf:
         - $ref: '#/components/schemas/CommonNoteProperties'
         - type: object
@@ -1289,12 +1296,14 @@ components:
 
     Attachment:
       type: object
+      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "attachments")'
       description: >-
         Complements the description of an element (for instance a product)
         through video, pictures...
       properties:
         id:
           type: string
+          x-field-extra-annotation: "@jakarta.persistence.Id"
           description: Unique identifier for this particular attachment
         href:
           type: string
