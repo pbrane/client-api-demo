@@ -9,7 +9,7 @@ tags:
 paths:
   /tacCases:
     get:
-      operationId: listTacCases
+      operationId: retrieveTacCases
       summary: List or find TAC Cases
       description: This operation list or find TACCase entities
       tags:
@@ -163,7 +163,7 @@ paths:
     get:
       summary: Get notes for a specific TAC Case
       description: "Retrieve a list of notes attached to a specific item by its TAC Case Number."
-      operationId: getTacCaseNotes
+      operationId: retrieveTacCaseNotes
       tags:
         - TAC_Case
       parameters:
@@ -301,7 +301,7 @@ paths:
 
   /tacCases/{caseNumber}/attachments:
     get:
-      operationId: getTacCaseAttachments
+      operationId: retrieveTacCaseAttachments
       summary: Get a list of attachments for a specific TAC case
       tags:
         - TAC_Case
@@ -415,9 +415,7 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Attachment'
+                $ref: '#/components/schemas/Attachment'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -431,7 +429,7 @@ paths:
 
   /rmaCases:
     get:
-      operationId: listRmaCases
+      operationId: retrieveRmaCases
       summary: List or find RMA Cases
       description: This operation list or find RMA Cases
       tags:
@@ -480,7 +478,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
     post:
-      operationId: createTacRma
+      operationId: createRmaCase
       summary: Creates an RMA Case
       description: This operation creates an RMA Case.
       tags:
@@ -582,7 +580,7 @@ paths:
     get:
       summary: Get notes for a specific RMA
       description: "Retrieve a list of notes attached to a specific RMA Case by its case number."
-      operationId: getRmaCaseNotes
+      operationId: retrieveRmaCaseNotes
       tags:
         - RMA_Case
       parameters:
@@ -719,7 +717,7 @@ paths:
 
   /rmaCases/{caseNumber}/attachments:
     get:
-      operationId: getRmaCaseAttachments
+      operationId: retrieveRmaCaseAttachments
       summary: Get a list of attachments for a specific RMA case
       tags:
         - RMA_Case
@@ -757,7 +755,7 @@ paths:
           $ref: '#/components/responses/InternalServerError'
 
     post:
-      operationId: uploadRmaCaseAttachment
+      operationId: createRmaCaseAttachment
       summary: Upload an attachment to a specific RMA case
       tags:
         - RMA_Case
@@ -832,9 +830,7 @@ paths:
           content:
             application/json;charset=utf-8:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Attachment'
+                $ref: '#/components/schemas/Attachment'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
