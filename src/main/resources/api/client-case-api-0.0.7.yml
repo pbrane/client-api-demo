@@ -1021,7 +1021,8 @@ components:
 
     RmaCase:
       type: object
-      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "rma_cases")'
+#      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "rma_cases")'
+      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "rma_cases") @lombok.Data @lombok.Builder'
       description: An RMA Case
       properties:
         id:
@@ -1152,7 +1153,8 @@ components:
 
     TacCase:
       type: object
-      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "tac_cases")'
+#      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "rma_cases")'
+      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "tac_cases") @lombok.Data @lombok.Builder'
       description: A TAC Case
       properties:
         id:
@@ -1263,7 +1265,7 @@ components:
 
     Note:
       type: object
-      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "notes")'
+      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "notes") @lombok.Data @lombok.Builder'
       description: Extra information about a given TAC Case
       properties:
         id:
@@ -1291,7 +1293,7 @@ components:
 
     Attachment:
       type: object
-      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "attachments")'
+      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "attachments") @lombok.Data @lombok.Builder'
       description: >-
         Complements the description of an element (for instance a product)
         through video, pictures...
