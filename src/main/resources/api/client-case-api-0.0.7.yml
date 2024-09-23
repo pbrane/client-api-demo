@@ -950,17 +950,17 @@ components:
           type: string
           format: date-time
           description: The date on which the TAC Case create was requested
-        requestorOrganization:
+        requesterOrganization:
           type: string
           description: The Organization that is requesting the TAC Case
           example: MSFT
-        requestorFirstName:
+        requesterFirstName:
           type: string
-        requestorLastName:
+        requesterLastName:
           type: string
-        requestorEmail:
+        requesterEmail:
           format: email
-        requestorPhone:
+        requesterPhone:
           format: phone
         installationCountry:
           type: string
@@ -1021,13 +1021,13 @@ components:
 
     RmaCase:
       type: object
-#      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "rma_cases")'
+      #      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "rma_cases")'
       x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "rma_cases") @lombok.Data @lombok.Builder'
       description: An RMA Case
       properties:
         id:
           type: string
-          x-field-extra-annotation: "@jakarta.persistence.Id"
+          x-field-extra-annotation: '@jakarta.persistence.Id @jakarta.persistence.GeneratedValue(strategy = jakarta.persistence.GenerationType.AUTO)'
         href:
           type: string
         caseNumber:
@@ -1036,6 +1036,13 @@ components:
           type: string
         relatedTacCaseId:
           type: string
+#        tacCase:
+#          $ref: '#/components/schemas/TacCase'
+#        tacCase:
+#          allOf:
+#            - x-field-extra-annotation: '@jakarta.persistence.ManyToOne(fetch = jakarta.persistence.FetchType.LAZY, optional = false) @jakarta.persistence.JoinColumn(name = "related_tac_case_id", nullable = false)'
+#            - $ref: '#/components/schemas/TacCase'
+#            - description: The full TacCase object related to this RMA case
         requestType:
           type: string
         newPartSerialNumber:
@@ -1153,13 +1160,13 @@ components:
 
     TacCase:
       type: object
-#      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "rma_cases")'
+      #      x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "rma_cases")'
       x-class-extra-annotation: '@jakarta.persistence.Entity @jakarta.persistence.Table(name = "tac_cases") @lombok.Data @lombok.Builder'
       description: A TAC Case
       properties:
         id:
           type: string
-          x-field-extra-annotation: "@jakarta.persistence.Id"
+          x-field-extra-annotation: '@jakarta.persistence.Id @jakarta.persistence.GeneratedValue(strategy = jakarta.persistence.GenerationType.AUTO)'
           description: Unique identifier of the TAC Case
         href:
           type: string
@@ -1270,7 +1277,7 @@ components:
       properties:
         id:
           type: string
-          x-field-extra-annotation: "@jakarta.persistence.Id"
+          x-field-extra-annotation: '@jakarta.persistence.Id @jakarta.persistence.GeneratedValue(strategy = jakarta.persistence.GenerationType.AUTO)'
           description: Identifier of the note within its containing Case (may or may not be globally unique, depending on provider implementation)
       allOf:
         - $ref: '#/components/schemas/CommonNoteProperties'
@@ -1300,7 +1307,7 @@ components:
       properties:
         id:
           type: string
-          x-field-extra-annotation: "@jakarta.persistence.Id"
+          x-field-extra-annotation: '@jakarta.persistence.Id @jakarta.persistence.GeneratedValue(strategy = jakarta.persistence.GenerationType.AUTO)'
           description: Unique identifier for this particular attachment
         href:
           type: string
