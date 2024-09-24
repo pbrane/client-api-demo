@@ -27,8 +27,9 @@ public class RmaCaseEntity {
   @GeneratedValue(strategy = GenerationType.SEQUENCE)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.LAZY, optional = false, targetEntity = TacCaseEntity.class, cascade = CascadeType.ALL)
+  @ManyToOne(fetch = FetchType.EAGER, optional = true, targetEntity = TacCaseEntity.class, cascade = CascadeType.ALL)
 //  @JoinColumn(name = "id")
+//  @JsonIgnoreProperties(value = {"rma_cases", "hibernateLazyInitializer"})
   private TacCaseEntity tacCase;
 
   private String href;
@@ -37,7 +38,7 @@ public class RmaCaseEntity {
 
   private String caseId;
 
-  private String relatedTacCaseId;
+//  private String relatedTacCaseId;
 
   private String requestType;
 

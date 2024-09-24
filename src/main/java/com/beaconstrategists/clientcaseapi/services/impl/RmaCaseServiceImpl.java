@@ -73,7 +73,7 @@ public class RmaCaseServiceImpl implements RmaCaseService {
             Optional.ofNullable(rmaCaseEntity.getNewPartSerialNumber()).ifPresent(existingRmaCase::setNewPartSerialNumber);
             Optional.ofNullable(rmaCaseEntity.getNewPartShippedDate()).ifPresent(existingRmaCase::setNewPartShippedDate);
             Optional.ofNullable(rmaCaseEntity.getProblemDescription()).ifPresent(existingRmaCase::setProblemDescription);
-            Optional.ofNullable(rmaCaseEntity.getRelatedTacCaseId()).ifPresent(existingRmaCase::setRelatedTacCaseId);
+//            Optional.ofNullable(rmaCaseEntity.getRelatedTacCaseId()).ifPresent(existingRmaCase::setRelatedTacCaseId);
             Optional.ofNullable(rmaCaseEntity.getRequestType()).ifPresent(existingRmaCase::setRequestType);
             Optional.ofNullable(rmaCaseEntity.getReturnedPartNumber()).ifPresent(existingRmaCase::setReturnedPartNumber);
             Optional.ofNullable(rmaCaseEntity.getReturnedSerialNumber()).ifPresent(existingRmaCase::setReturnedSerialNumber);
@@ -115,7 +115,7 @@ public class RmaCaseServiceImpl implements RmaCaseService {
             Optional.ofNullable(rmaCaseEntity.getNewPartSerialNumber()).ifPresent(existingRmaCase::setNewPartSerialNumber);
             Optional.ofNullable(rmaCaseEntity.getNewPartShippedDate()).ifPresent(existingRmaCase::setNewPartShippedDate);
             Optional.ofNullable(rmaCaseEntity.getProblemDescription()).ifPresent(existingRmaCase::setProblemDescription);
-            Optional.ofNullable(rmaCaseEntity.getRelatedTacCaseId()).ifPresent(existingRmaCase::setRelatedTacCaseId);
+//            Optional.ofNullable(rmaCaseEntity.getRelatedTacCaseId()).ifPresent(existingRmaCase::setRelatedTacCaseId);
             Optional.ofNullable(rmaCaseEntity.getRequestType()).ifPresent(existingRmaCase::setRequestType);
             Optional.ofNullable(rmaCaseEntity.getReturnedPartNumber()).ifPresent(existingRmaCase::setReturnedPartNumber);
             Optional.ofNullable(rmaCaseEntity.getReturnedSerialNumber()).ifPresent(existingRmaCase::setReturnedSerialNumber);
