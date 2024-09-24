@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
+@RequestMapping("/api/v1")
 public class RmaCaseController {
 
     private final RmaCaseService rmaCaseService;
@@ -25,14 +26,14 @@ public class RmaCaseController {
         this.rmaCaseService = rmaCaseService;
     }
 
-    @PostMapping(path = "/api/v1/rmaCases")
+    @PostMapping(path = "/rmaCases")
     public ResponseEntity<RmaCaseDto> createRmaCase(@RequestBody RmaCaseDto rmaCaseDto) {
         RmaCaseEntity rmaCaseEntity = rmaCaseMapper.mapFrom(rmaCaseDto);
         RmaCaseEntity rmaCaseEntitySaved = rmaCaseService.save(rmaCaseEntity);
         return new ResponseEntity<>(rmaCaseMapper.mapTo(rmaCaseEntitySaved), HttpStatus.CREATED);
     }
 
-    @GetMapping(path = "/api/v1/rmaCases")
+    @GetMapping(path = "/rmaCases")
     public List<RmaCaseDto> listRmaCases() {
         List<RmaCaseEntity> rmaCases = rmaCaseService.findAll();
         return rmaCases.stream()
@@ -40,7 +41,7 @@ public class RmaCaseController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping(path = "/api/v1/rmaCases/{caseNumber}")
+    @GetMapping(path = "/rmaCases/{caseNumber}")
     public ResponseEntity<RmaCaseDto> getRmaCase(@PathVariable String caseNumber) {
         Optional<RmaCaseEntity> foundRmaCase = rmaCaseService.findByCaseNumber(caseNumber);
         return foundRmaCase.map(rmaCaseEntity -> {
@@ -49,7 +50,7 @@ public class RmaCaseController {
         }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PutMapping(path = "/api/v1/rmaCases/{caseNumber}")
+    @PutMapping(path = "/rmaCases/{caseNumber}")
     public ResponseEntity<RmaCaseDto> fullUpdateRmaCase(@PathVariable String caseNumber, @RequestBody RmaCaseDto rmaCaseDto) {
 
         if(!rmaCaseService.isExists(caseNumber)) {
@@ -62,7 +63,7 @@ public class RmaCaseController {
         return new ResponseEntity<>(rmaCaseMapper.mapTo(rmaCaseEntitySaved), HttpStatus.OK);
     }
 
-    @PatchMapping(path = "/api/v1/rmaCases/{caseNumber}")
+    @PatchMapping(path = "/rmaCases/{caseNumber}")
     public ResponseEntity<RmaCaseDto> partialUpdate(@PathVariable String caseNumber, @RequestBody RmaCaseDto rmaCaseDto) {
 
         if(!rmaCaseService.isExists(caseNumber)) {
@@ -74,7 +75,7 @@ public class RmaCaseController {
         return new ResponseEntity<>(rmaCaseMapper.mapTo(rmaCaseEntitySaved), HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/api/v1/rmaCases/{caseNumber}")
+    @DeleteMapping(path = "/rmaCases/{caseNumber}")
     public ResponseEntity<RmaCaseDto> deleteRmaCase(@PathVariable String caseNumber) {
 
         if(!rmaCaseService.isExists(caseNumber)) {
