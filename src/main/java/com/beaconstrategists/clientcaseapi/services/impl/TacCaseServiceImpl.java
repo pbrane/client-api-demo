@@ -44,12 +44,12 @@ public class TacCaseServiceImpl implements TacCaseService {
 
     @Override
     public boolean isExists(Long id) {
-        return false;
+        return tacCaseRepository.existsById(id);
     }
 
     @Override
     public boolean isExists(String caseNumber) {
-        return false;
+        return tacCaseRepository.existsByCaseNumber(caseNumber);
     }
 
     @Override

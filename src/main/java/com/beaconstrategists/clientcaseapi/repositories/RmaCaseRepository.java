@@ -9,4 +9,6 @@ public interface RmaCaseRepository extends CrudRepository<RmaCaseEntity, Long> {
 
     Optional<RmaCaseEntity> findByCaseNumber(String caseNumber);
 
+    boolean existsByCaseNumber(String caseNumber);
+
 }

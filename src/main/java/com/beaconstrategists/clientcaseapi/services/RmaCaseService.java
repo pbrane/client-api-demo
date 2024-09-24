@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface RmaCaseService {
-
     RmaCaseEntity save(RmaCaseEntity rmaCaseEntity);
 
     List<RmaCaseEntity> findAll();
@@ -17,7 +16,13 @@ public interface RmaCaseService {
 
     boolean isExists(Long id);
 
-    RmaCaseEntity partialUpdate(Long id, RmaCaseEntity tacCaseEntity);
+    boolean isExists(String caseNumber);
+
+    RmaCaseEntity partialUpdate(Long id, RmaCaseEntity RmaCaseEntity);
+
+    RmaCaseEntity partialUpdate(String caseNumber, RmaCaseEntity rmaCaseEntity);
 
     void delete(Long id);
+
+    void delete(String caseNumber);
 }

@@ -20,7 +20,7 @@ import java.time.OffsetDateTime;
 @Data
 @Builder
 @Entity
-@Table(name = "rma_cases")
+@Table(name = "rma_cases", indexes = {@Index(name = "rma_cn_idx", columnList = "caseNumber", unique = true)})
 public class RmaCaseEntity {
 
   @Id

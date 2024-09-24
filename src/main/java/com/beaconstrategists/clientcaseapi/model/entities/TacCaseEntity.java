@@ -2,25 +2,21 @@ package com.beaconstrategists.clientcaseapi.model.entities;
 
 import com.beaconstrategists.clientcaseapi.model.CasePriorityEnum;
 import com.beaconstrategists.clientcaseapi.model.TacCaseStatus;
-
-import java.time.OffsetDateTime;
-import java.util.List;
-
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.format.annotation.DateTimeFormat;
-import jakarta.validation.Valid;
+
+import java.time.OffsetDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tac_cases")
+@Table(name = "tac_cases", indexes = {@Index(name = "tac_cn_idx", columnList = "caseNumber", unique = true)})
 public class TacCaseEntity {
 
   @Id

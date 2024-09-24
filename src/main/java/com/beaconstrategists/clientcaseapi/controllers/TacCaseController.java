@@ -25,13 +25,6 @@ public class TacCaseController {
         this.tacCaseService = tacCaseService;
     }
 
-    @PostMapping(path = "/api/v1/tacCases")
-    public ResponseEntity<TacCaseDto> createTacCase(@RequestBody TacCaseDto tacCaseDto) {
-        TacCaseEntity tacCaseEntity = tacCaseMapper.mapFrom(tacCaseDto);
-        TacCaseEntity tacCaseEntitySaved = tacCaseService.save(tacCaseEntity);
-        return new ResponseEntity<>(tacCaseMapper.mapTo(tacCaseEntitySaved), HttpStatus.CREATED);
-    }
-
     @GetMapping(path = "/api/v1/tacCases")
     public List<TacCaseDto> listTacCases() {
         List<TacCaseEntity> tacCases = tacCaseService.findAll();
@@ -49,7 +42,14 @@ public class TacCaseController {
         }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PutMapping(path = "/api/v1/TacCases/{caseNumber}")
+    @PostMapping(path = "/api/v1/tacCases")
+    public ResponseEntity<TacCaseDto> createTacCase(@RequestBody TacCaseDto tacCaseDto) {
+        TacCaseEntity tacCaseEntity = tacCaseMapper.mapFrom(tacCaseDto);
+        TacCaseEntity tacCaseEntitySaved = tacCaseService.save(tacCaseEntity);
+        return new ResponseEntity<>(tacCaseMapper.mapTo(tacCaseEntitySaved), HttpStatus.CREATED);
+    }
+
+    @PutMapping(path = "/api/v1/tacCases/{caseNumber}")
     public ResponseEntity<TacCaseDto> fullUpdateTacCase(@PathVariable String caseNumber, @RequestBody TacCaseDto tacCaseDto) {
 
         if(!tacCaseService.isExists(caseNumber)) {
@@ -64,15 +64,17 @@ public class TacCaseController {
 
     @PatchMapping(path = "/api/v1/tacCases/{caseNumber}")
     public ResponseEntity<TacCaseDto> partialUpdate(@PathVariable String caseNumber, @RequestBody TacCaseDto tacCaseDto) {
+
         if(!tacCaseService.isExists(caseNumber)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
         TacCaseEntity tacCaseEntity = tacCaseMapper.mapFrom(tacCaseDto);
-        TacCaseEntity tacCaseEntitySaved = tacCaseService.save(tacCaseEntity); //fixme
+        TacCaseEntity tacCaseEntitySaved = tacCaseService.partialUpdate(caseNumber, tacCaseEntity); //fixme
         return new ResponseEntity<>(tacCaseMapper.mapTo(tacCaseEntitySaved), HttpStatus.OK);
     }
 
-    @DeleteMapping(path = "/api/v1/{caseNumber}")
+    @DeleteMapping(path = "/api/v1/tacCases/{caseNumber}")
     public ResponseEntity<TacCaseDto> deleteTacCase(@PathVariable String caseNumber) {
         if(!tacCaseService.isExists(caseNumber)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
