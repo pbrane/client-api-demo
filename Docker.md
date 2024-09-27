@@ -2,7 +2,7 @@
 # Dockerize Client API Demo
 
 ## Table of Contents
-1. [Ubuntu Instructions](#ubuntu-instructions)
+[Ubuntu Instructions](#ubuntu-instructions)
    1. [Making sure the OS is up to date](#making-sure-the-os-is-up-to-date)
    2. [Install Java 21 JDK](#install-java-21-jdk)
    3. [Install Maven](#install-maven)
@@ -13,8 +13,9 @@
    8. [Now Run it](#now-run-it)
    9. [Try it out](#try-it-out)
    10. [Swagger: API Documentation](#swagger-api-documentation)
-   11. [Run it from DockerHub](#run-it-from-dockerhub)
-      1. [On MacOS](#on-macos)
+
+[Run it from DockerHub](#run-it-from-dockerhub)
+  [On MacOS](#on-macos)
 
 ## Ubuntu Instructions
 
@@ -73,10 +74,10 @@ $ docker run -p 8080:8080 client-api-demo
 $ curl -X 'GET' 'http://localhost:8080/api/v1/tacCases/CN004' -H 'accept: */*'
 ```
 
-### Swagger: API Documentation
+#### Swagger: API Documentation
 http://localhost:8008/swagger-ui.html
 
-### Run it from DockerHub
+## Run it from DockerHub
 ```
 docker pull pbranestrategy/client-api-demo:latest
 docker run -p 8080:8080 pbranestrategy/client-api-demo:latest
