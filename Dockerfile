@@ -1,5 +1,5 @@
 # Use OpenJDK as the base image for Java 21
-FROM openjdk:21-jdk-slim as builder
+FROM openjdk:21-jdk-slim AS builder
 
 # Set the JAVA_HOME environment variable to the correct path for OpenJDK
 # The path may vary; you can check it by running: docker run --rm openjdk:21-jdk-slim bash -c 'echo $JAVA_HOME'
