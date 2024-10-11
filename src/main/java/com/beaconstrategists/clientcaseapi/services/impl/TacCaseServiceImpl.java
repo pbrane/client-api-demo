@@ -33,8 +33,8 @@ public class TacCaseServiceImpl implements TacCaseService {
     }
 
     @Override
-    public Optional<TacCaseEntity> findById(String id) {
-        return Optional.empty();
+    public Optional<TacCaseEntity> findById(Long id) {
+        return tacCaseRepository.findById(id);
     }
 
     @Override
@@ -130,11 +130,11 @@ public class TacCaseServiceImpl implements TacCaseService {
 
     @Override
     public void delete(Long id) {
-
+        tacCaseRepository.deleteById(id);
     }
 
     @Override
     public void delete(String caseNumber) {
-
+        tacCaseRepository.deleteByCaseNumber(caseNumber);
     }
 }

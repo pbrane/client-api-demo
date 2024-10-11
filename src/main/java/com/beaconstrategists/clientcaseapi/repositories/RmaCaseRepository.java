@@ -11,4 +11,5 @@ public interface RmaCaseRepository extends CrudRepository<RmaCaseEntity, Long> {
 
     boolean existsByCaseNumber(String caseNumber);
 
+    void deleteByCaseNumber(String caseNumber);
 }

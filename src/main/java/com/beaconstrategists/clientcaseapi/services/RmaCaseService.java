@@ -10,7 +10,7 @@ public interface RmaCaseService {
 
     List<RmaCaseEntity> findAll();
 
-    Optional<RmaCaseEntity> findById(String id);
+    Optional<RmaCaseEntity> findById(Long id);
 
     Optional<RmaCaseEntity> findByCaseNumber(String caseNumber);
 

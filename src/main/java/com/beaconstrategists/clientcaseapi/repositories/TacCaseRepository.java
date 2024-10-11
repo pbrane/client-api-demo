@@ -12,4 +12,6 @@ public interface TacCaseRepository extends CrudRepository<TacCaseEntity, Long> {
     Optional<TacCaseEntity> findByCaseNumber(String caseNumber);
 
     boolean existsByCaseNumber(String caseNumber);
+
+    void deleteByCaseNumber(String caseNumber);
 }

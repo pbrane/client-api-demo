@@ -33,8 +33,9 @@ public class RmaCaseServiceImpl implements RmaCaseService {
     }
 
     @Override
-    public Optional<RmaCaseEntity> findById(String id) {
-        return Optional.empty();
+    public Optional<RmaCaseEntity> findById(Long id) {
+
+        return rmaCaseRepository.findById(id);
     }
 
     @Override
@@ -138,11 +139,11 @@ public class RmaCaseServiceImpl implements RmaCaseService {
 
     @Override
     public void delete(Long id) {
-
+        rmaCaseRepository.deleteById(id);
     }
 
     @Override
     public void delete(String caseNumber) {
-
+        rmaCaseRepository.deleteByCaseNumber(caseNumber);
     }
 }

@@ -11,7 +11,7 @@ public interface TacCaseService {
 
     List<TacCaseEntity> findAll();
 
-    Optional<TacCaseEntity> findById(String id);
+    Optional<TacCaseEntity> findById(Long id);
 
     Optional<TacCaseEntity> findByCaseNumber(String caseNumber);
 
