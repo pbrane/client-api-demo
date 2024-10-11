@@ -24,7 +24,7 @@ import java.time.OffsetDateTime;
 public class RmaCaseEntity {
 
   @Id
-  @GeneratedValue(strategy = GenerationType.SEQUENCE)
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
   @ManyToOne(fetch = FetchType.EAGER, optional = true, targetEntity = TacCaseEntity.class, cascade = CascadeType.ALL)
