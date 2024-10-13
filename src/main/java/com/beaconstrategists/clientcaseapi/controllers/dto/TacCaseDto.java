@@ -1,14 +1,11 @@
 package com.beaconstrategists.clientcaseapi.controllers.dto;
 
 import com.beaconstrategists.clientcaseapi.model.CasePriorityEnum;
-import com.beaconstrategists.clientcaseapi.model.TacCaseStatus;
-import com.beaconstrategists.clientcaseapi.model.entities.NoteEntity;
-import jakarta.validation.Valid;
+import com.beaconstrategists.clientcaseapi.model.CaseStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.OffsetDateTime;
@@ -26,7 +23,7 @@ public class TacCaseDto {
 
     private String caseNumber;
 
-    private TacCaseStatus caseStatus;
+    private CaseStatus caseStatus;
 
     private Boolean rmaNeeded;
 
@@ -77,7 +74,8 @@ public class TacCaseDto {
 
     private String faultyPartNumber;
 
-    //TODO: fix
-//    @Valid
-//    private JsonNullable<List<@Valid NoteEntity>> notes = JsonNullable.<List<@Valid NoteEntity>>undefined();
+    private List<Long> attachmentIds;
+
+    private List<Long> rmaCaseIds;
+
 }

@@ -1,102 +1,130 @@
 package com.beaconstrategists.clientcaseapi.controllers;
 
-import com.beaconstrategists.clientcaseapi.mappers.Mapper;
-import com.beaconstrategists.clientcaseapi.model.entities.TacCaseEntity;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentDetailDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentSummaryDto;
 import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseDto;
 import com.beaconstrategists.clientcaseapi.services.TacCaseService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/tacCases")
 public class TacCaseController {
 
     private final TacCaseService tacCaseService;
 
-    private final Mapper<TacCaseEntity, TacCaseDto> tacCaseMapper;
-
-    public TacCaseController(TacCaseService tacCaseService, Mapper<TacCaseEntity, TacCaseDto> tacCaseMapper) {
-        this.tacCaseMapper = tacCaseMapper;
+    public TacCaseController(TacCaseService tacCaseService) {
         this.tacCaseService = tacCaseService;
     }
 
-    @GetMapping(path = "/tacCases")
-    public ResponseEntity<List<TacCaseDto>> listTacCases(@RequestParam(value = "caseNumber", required = false) String caseNumber) {
+    @GetMapping(path = "/")
+    public ResponseEntity<List<TacCaseDto>> listTacCases(
+            @RequestParam(value = "caseNumber", required = false) String caseNumber) {
         if (caseNumber != null) {
-            Optional<TacCaseEntity> foundTacCase = tacCaseService.findByCaseNumber(caseNumber);
-            if (foundTacCase.isPresent()) {
-                TacCaseDto tacCaseDto = tacCaseMapper.mapTo(foundTacCase.get());
-                return ResponseEntity.ok(Collections.singletonList(tacCaseDto));
-            } else {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
-            }
+            Optional<TacCaseDto> foundTacCase = tacCaseService.findByCaseNumber(caseNumber);
+            return foundTacCase.map(tacCaseDto -> ResponseEntity
+                    .ok(Collections.singletonList(tacCaseDto)))
+                    .orElseGet(() -> ResponseEntity
+                            .status(HttpStatus.NOT_FOUND)
+                            .body(Collections.emptyList()));
         } else {
-            List<TacCaseEntity> tacCases = tacCaseService.findAll();
-            List<TacCaseDto> tacCaseDtos = tacCases.stream()
-                    .map(tacCaseMapper::mapTo)
-                    .collect(Collectors.toList());
+            List<TacCaseDto> tacCaseDtos = tacCaseService.findAll();
             return ResponseEntity.ok(tacCaseDtos);
         }
     }
 
-    @GetMapping(path = "/tacCases/{id}")
+    @GetMapping(path = "/{id}")
     public ResponseEntity<TacCaseDto> getTacCase(@PathVariable Long id) {
-        Optional<TacCaseEntity> foundTacCase = tacCaseService.findById(id);
-        return foundTacCase.map(tacCaseEntity -> {
-            TacCaseDto tacCaseDto = tacCaseMapper.mapTo(tacCaseEntity);
-            return new ResponseEntity<>(tacCaseDto, HttpStatus.OK);
-        }).orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+        Optional<TacCaseDto> foundTacCase = tacCaseService.findById(id);
+        return foundTacCase.map(tacCaseDto -> new ResponseEntity<>(tacCaseDto, HttpStatus.OK))
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping(path = "/tacCases")
-    public ResponseEntity<TacCaseDto> createTacCase(@RequestBody TacCaseDto tacCaseDto) {
-        TacCaseEntity tacCaseEntity = tacCaseMapper.mapFrom(tacCaseDto);
-        TacCaseEntity tacCaseEntitySaved = tacCaseService.save(tacCaseEntity);
-        return new ResponseEntity<>(tacCaseMapper.mapTo(tacCaseEntitySaved), HttpStatus.CREATED);
+    @PostMapping(path = "/")
+    public ResponseEntity<TacCaseDto> createTacCase(@Valid @RequestBody TacCaseDto tacCaseDto) {
+        TacCaseDto tacCaseDtoSaved = tacCaseService.save(tacCaseDto);
+        return new ResponseEntity<>(tacCaseDtoSaved, HttpStatus.CREATED);
     }
 
-    @PutMapping(path = "/tacCases/{id}")
-    public ResponseEntity<TacCaseDto> fullUpdateTacCase(@PathVariable Long id, @RequestBody TacCaseDto tacCaseDto) {
+    @PutMapping(path = "/{id}")
+    public ResponseEntity<TacCaseDto> fullUpdateTacCase(
+            @PathVariable Long id,
+            @Valid @RequestBody TacCaseDto tacCaseDto) {
 
-        if(!tacCaseService.isExists(id)) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        //tacCaseDto.setId(id);
-        TacCaseEntity tacCaseEntity = tacCaseMapper.mapFrom(tacCaseDto);
-        TacCaseEntity tacCaseEntitySaved = tacCaseService.save(tacCaseEntity);
-        return new ResponseEntity<>(tacCaseMapper.mapTo(tacCaseEntitySaved), HttpStatus.OK);
-    }
-
-    @PatchMapping(path = "/tacCases/{id}")
-    public ResponseEntity<TacCaseDto> partialUpdate(@PathVariable Long id, @RequestBody TacCaseDto tacCaseDto) {
-
-        if(!tacCaseService.isExists(id)) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        TacCaseEntity tacCaseEntity = tacCaseMapper.mapFrom(tacCaseDto);
-        TacCaseEntity tacCaseEntitySaved = tacCaseService.partialUpdate(id, tacCaseEntity); //fixme
-        return new ResponseEntity<>(tacCaseMapper.mapTo(tacCaseEntitySaved), HttpStatus.OK);
-    }
-
-    @DeleteMapping(path = "/tacCases/{id}")
-    public ResponseEntity<Void> deleteTacCase(@PathVariable Long id) {
         if (!tacCaseService.isExists(id)) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+
+        TacCaseDto tacCaseDtoSaved = tacCaseService.save(tacCaseDto);
+        return new ResponseEntity<>(tacCaseDtoSaved, HttpStatus.OK);
+    }
+
+    @PatchMapping(path = "/{id}")
+    public ResponseEntity<TacCaseDto> partialUpdate(
+            @PathVariable Long id,
+            @Valid @RequestBody TacCaseDto tacCaseDto) {
+
+        if (!tacCaseService.isExists(id)) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        TacCaseDto tacCaseDtoSaved = tacCaseService.partialUpdate(id, tacCaseDto);
+        return new ResponseEntity<>(tacCaseDtoSaved, HttpStatus.OK);
+    }
+
+    @DeleteMapping(path = "/{id}")
+    public ResponseEntity<Void> deleteTacCase(@PathVariable Long id) {
         tacCaseService.delete(id);
         HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Message", "Case ID: " + id + " deleted.");
+        headers.add("X-Message", "TAC Case ID: " + id + " deleted.");
         return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping(path = "/{caseId}/attachments")
+    public ResponseEntity<List<TacCaseAttachmentSummaryDto>> listAttachments(@PathVariable Long caseId) {
+        List<TacCaseAttachmentSummaryDto> attachments = tacCaseService.listAttachments(caseId);
+        return ResponseEntity.ok(attachments);
+    }
+
+    @GetMapping(path = "/{caseId}/attachments/{attachmentId}")
+    public ResponseEntity<TacCaseAttachmentDetailDto> getAttachment(
+            @PathVariable Long caseId,
+            @PathVariable Long attachmentId) {
+        Optional<TacCaseAttachmentDetailDto> attachmentDetail = tacCaseService.getAttachment(caseId, attachmentId);
+        return attachmentDetail.map(ResponseEntity::ok)
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @PostMapping(path = "/{caseId}/attachments")
+    public ResponseEntity<TacCaseAttachmentDetailDto> addAttachment(
+            @PathVariable Long caseId,
+            @Valid @RequestBody TacCaseAttachmentDetailDto tacCaseAttachmentDetailDto) {
+        TacCaseAttachmentDetailDto savedAttachment = tacCaseService.addAttachment(caseId, tacCaseAttachmentDetailDto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedAttachment);
+    }
+
+    @PutMapping(path = "/{caseId}/attachments/{attachmentId}")
+    public ResponseEntity<TacCaseAttachmentDetailDto> updateAttachment(
+            @PathVariable Long caseId,
+            @PathVariable Long attachmentId,
+            @Valid @RequestBody TacCaseAttachmentDetailDto tacCaseAttachmentDetailDto) {
+        TacCaseAttachmentDetailDto updatedAttachment = tacCaseService.updateAttachment(caseId, attachmentId, tacCaseAttachmentDetailDto);
+        return ResponseEntity.ok(updatedAttachment);
+    }
+
+    @DeleteMapping(path = "/{caseId}/attachments/{attachmentId}")
+    public ResponseEntity<Void> deleteAttachment(
+            @PathVariable Long caseId,
+            @PathVariable Long attachmentId) {
+        tacCaseService.deleteAttachment(caseId, attachmentId);
+        return ResponseEntity.noContent().build();
     }
 
 }

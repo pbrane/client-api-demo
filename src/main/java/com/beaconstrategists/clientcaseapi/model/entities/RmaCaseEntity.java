@@ -1,6 +1,8 @@
 package com.beaconstrategists.clientcaseapi.model.entities;
 
-import com.beaconstrategists.clientcaseapi.model.TacCaseStatus;
+import com.beaconstrategists.clientcaseapi.model.CaseStatus;
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,6 +12,8 @@ import lombok.extern.java.Log;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An RMA Case
@@ -27,18 +31,14 @@ public class RmaCaseEntity {
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
 
-  @ManyToOne(fetch = FetchType.EAGER, optional = true, targetEntity = TacCaseEntity.class, cascade = CascadeType.ALL)
-//  @JoinColumn(name = "id")
-//  @JsonIgnoreProperties(value = {"rma_cases", "hibernateLazyInitializer"})
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "tac_case_id", nullable = false)
+  @JsonBackReference
   private TacCaseEntity tacCase;
 
   private String href;
 
   private String caseNumber;
-
-  private String caseId;
-
-//  private String relatedTacCaseId;
 
   private String requestType;
 
@@ -52,7 +52,7 @@ public class RmaCaseEntity {
 
   private String returnedPartNumber;
 
-  private TacCaseStatus caseStatus;
+  private CaseStatus caseStatus;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private OffsetDateTime newPartShippedDate;
@@ -104,4 +104,20 @@ public class RmaCaseEntity {
   private String contactEmail;
 
   private Integer vendorRmaNumber;
+
+  @OneToMany(mappedBy = "rmaCase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JsonManagedReference
+  private List<RmaCaseAttachmentEntity> attachments = new ArrayList<>();
+
+  // Helper methods to manage bi-directional relationship
+  public void addAttachment(RmaCaseAttachmentEntity attachment) {
+    attachments.add(attachment);
+    attachment.setRmaCase(this);
+  }
+
+  public void removeAttachment(RmaCaseAttachmentEntity attachment) {
+    attachments.remove(attachment);
+    attachment.setRmaCase(null);
+  }
+
 }

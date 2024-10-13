@@ -1,6 +1,6 @@
 package com.beaconstrategists.clientcaseapi.controllers.dto;
 
-import com.beaconstrategists.clientcaseapi.model.TacCaseStatus;
+import com.beaconstrategists.clientcaseapi.model.CaseStatus;
 import com.beaconstrategists.clientcaseapi.model.entities.TacCaseEntity;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.OffsetDateTime;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -18,15 +19,11 @@ public class RmaCaseDto {
 
     private Long id;
 
-    private TacCaseEntity tacCase;
+    private Long tacCaseId;
 
     private String href;
 
     private String caseNumber;
-
-    private String caseId;
-
-    private String relatedTacCaseId;
 
     private String requestType;
 
@@ -40,7 +37,7 @@ public class RmaCaseDto {
 
     private String returnedPartNumber;
 
-    private TacCaseStatus caseStatus;
+    private CaseStatus caseStatus;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private OffsetDateTime newPartShippedDate;
@@ -92,4 +89,6 @@ public class RmaCaseDto {
     private String contactEmail;
 
     private Integer vendorRmaNumber;
+
+    private List<Long> attachmentIds;
 }

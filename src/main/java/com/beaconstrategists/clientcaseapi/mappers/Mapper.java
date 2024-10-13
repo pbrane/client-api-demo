@@ -1,8 +1,8 @@
 package com.beaconstrategists.clientcaseapi.mappers;
 
-public interface Mapper<A, B> {
+public interface Mapper<E, D> {
 
-    B mapTo(A a);
+    D mapTo(E e);
 
-    A mapFrom(B b);
+    E mapFrom(D d);
 }

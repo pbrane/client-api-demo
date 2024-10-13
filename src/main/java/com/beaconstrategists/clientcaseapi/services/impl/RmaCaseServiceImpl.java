@@ -1,9 +1,20 @@
 package com.beaconstrategists.clientcaseapi.services.impl;
 
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentDetailDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentSummaryDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseDto;
+import com.beaconstrategists.clientcaseapi.exceptions.ResourceNotFoundException;
+import com.beaconstrategists.clientcaseapi.mappers.impl.RmaCaseAttachmentDetailMapperImpl;
+import com.beaconstrategists.clientcaseapi.mappers.impl.RmaCaseAttachmentSummaryMapperImpl;
+import com.beaconstrategists.clientcaseapi.mappers.impl.RmaCaseMapperImpl;
+import com.beaconstrategists.clientcaseapi.model.entities.RmaCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.RmaCaseEntity;
+import com.beaconstrategists.clientcaseapi.repositories.RmaCaseAttachmentRepository;
 import com.beaconstrategists.clientcaseapi.repositories.RmaCaseRepository;
 import com.beaconstrategists.clientcaseapi.services.RmaCaseService;
+//import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -14,136 +25,171 @@ import java.util.stream.StreamSupport;
 public class RmaCaseServiceImpl implements RmaCaseService {
 
     private final RmaCaseRepository rmaCaseRepository;
+    private final RmaCaseAttachmentRepository rmaCaseAttachmentRepository;
+    private final RmaCaseAttachmentDetailMapperImpl attachmentDetailMapper;
+    private final RmaCaseAttachmentSummaryMapperImpl attachmentSummaryMapper;
+    private final RmaCaseMapperImpl rmaCaseMapper;
 
-    public RmaCaseServiceImpl(RmaCaseRepository rmaCaseRepository) {
+    public RmaCaseServiceImpl(RmaCaseRepository rmaCaseRepository,
+                              RmaCaseAttachmentRepository rmaCaseAttachmentRepository,
+                              RmaCaseAttachmentDetailMapperImpl attachmentDetailMapper,
+                              RmaCaseAttachmentSummaryMapperImpl attachmentSummaryMapper,
+                              RmaCaseMapperImpl rmaCaseMapper) {
         this.rmaCaseRepository = rmaCaseRepository;
+        this.rmaCaseAttachmentRepository = rmaCaseAttachmentRepository;
+        this.attachmentDetailMapper = attachmentDetailMapper;
+        this.attachmentSummaryMapper = attachmentSummaryMapper;
+        this.rmaCaseMapper = rmaCaseMapper;
+    }
+
+    // CRUD Operations for RmaCase
+
+    @Override
+    @Transactional
+    public RmaCaseDto save(RmaCaseDto rmaCaseDto) {
+        RmaCaseEntity rmaCaseEntity = rmaCaseMapper.mapFrom(rmaCaseDto);
+        RmaCaseEntity savedEntity = rmaCaseRepository.save(rmaCaseEntity);
+        return rmaCaseMapper.mapTo(savedEntity);
     }
 
     @Override
-    public RmaCaseEntity save(RmaCaseEntity rmaCaseEntity) {
-        return rmaCaseRepository.save(rmaCaseEntity);
-    }
-
-    @Override
-    public List<RmaCaseEntity> findAll() {
-        return StreamSupport.stream(rmaCaseRepository
-                        .findAll()
-                        .spliterator(),false)
+    @Transactional(readOnly = true)
+    public List<RmaCaseDto> findAll() {
+        List<RmaCaseEntity> rmaCases = StreamSupport.stream(rmaCaseRepository.findAll().spliterator(), false)
+                .toList();
+        return rmaCases.stream()
+                .map(rmaCaseMapper::mapTo)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public Optional<RmaCaseEntity> findById(Long id) {
-
-        return rmaCaseRepository.findById(id);
+    @Transactional(readOnly = true)
+    public Optional<RmaCaseDto> findById(Long id) {
+        return rmaCaseRepository.findById(id)
+                .map(rmaCaseMapper::mapTo);
     }
 
     @Override
-    public Optional<RmaCaseEntity> findByCaseNumber(String caseNumber) {
-        return rmaCaseRepository.findByCaseNumber(caseNumber);
+    @Transactional(readOnly = true)
+    public Optional<RmaCaseDto> findByCaseNumber(String caseNumber) {
+        return rmaCaseRepository.findByCaseNumber(caseNumber)
+                .map(rmaCaseMapper::mapTo);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isExists(Long id) {
         return rmaCaseRepository.existsById(id);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isExists(String caseNumber) {
         return rmaCaseRepository.existsByCaseNumber(caseNumber);
     }
 
     @Override
-    public RmaCaseEntity partialUpdate(Long id, RmaCaseEntity rmaCaseEntity) {
-        return rmaCaseRepository.findById(id).map(existingRmaCase -> {
-            Optional.ofNullable(rmaCaseEntity.getCaseNumber()).ifPresent(existingRmaCase::setCaseNumber);
-            Optional.ofNullable(rmaCaseEntity.getCaseStatus()).ifPresent(existingRmaCase::setCaseStatus);
-            Optional.ofNullable(rmaCaseEntity.getCustomerTrackingNumber()).ifPresent(existingRmaCase::setCustomerTrackingNumber);
-            Optional.ofNullable(rmaCaseEntity.getContactEmail()).ifPresent(existingRmaCase::setContactEmail);
-            Optional.ofNullable(rmaCaseEntity.getCustomerTrackingNumber()).ifPresent(existingRmaCase::setCustomerTrackingNumber);
-            Optional.ofNullable(rmaCaseEntity.getFailureAnalysisFinishedDate()).ifPresent(existingRmaCase::setFailureAnalysisFinishedDate);
-            Optional.ofNullable(rmaCaseEntity.getFailureAnalysisInProgressDate()).ifPresent(existingRmaCase::setFailureAnalysisInProgressDate);
-            Optional.ofNullable(rmaCaseEntity.getFailureAnalysisStartDate()).ifPresent(existingRmaCase::setFailureAnalysisStartDate);
-            Optional.ofNullable(rmaCaseEntity.getFaultyPartDeliveredDate()).ifPresent(existingRmaCase::setFaultyPartDeliveredDate);
-            Optional.ofNullable(rmaCaseEntity.getFaultyPartNumber()).ifPresent(existingRmaCase::setFaultyPartNumber);
-            Optional.ofNullable(rmaCaseEntity.getFaultyPartShippedDate()).ifPresent(existingRmaCase::setFaultyPartShippedDate);
-            Optional.ofNullable(rmaCaseEntity.getFaultySerialNumber()).ifPresent(existingRmaCase::setFaultySerialNumber);
-            Optional.ofNullable(rmaCaseEntity.getHref()).ifPresent(existingRmaCase::setHref);
-            Optional.ofNullable(rmaCaseEntity.getInstallationCountry()).ifPresent(existingRmaCase::setInstallationCountry);
-            Optional.ofNullable(rmaCaseEntity.getNewPartDeliveredDate()).ifPresent(existingRmaCase::setNewPartDeliveredDate);
-            Optional.ofNullable(rmaCaseEntity.getNewPartSerialNumber()).ifPresent(existingRmaCase::setNewPartSerialNumber);
-            Optional.ofNullable(rmaCaseEntity.getNewPartShippedDate()).ifPresent(existingRmaCase::setNewPartShippedDate);
-            Optional.ofNullable(rmaCaseEntity.getProblemDescription()).ifPresent(existingRmaCase::setProblemDescription);
-//            Optional.ofNullable(rmaCaseEntity.getRelatedTacCaseId()).ifPresent(existingRmaCase::setRelatedTacCaseId);
-            Optional.ofNullable(rmaCaseEntity.getRequestType()).ifPresent(existingRmaCase::setRequestType);
-            Optional.ofNullable(rmaCaseEntity.getReturnedPartNumber()).ifPresent(existingRmaCase::setReturnedPartNumber);
-            Optional.ofNullable(rmaCaseEntity.getReturnedSerialNumber()).ifPresent(existingRmaCase::setReturnedSerialNumber);
-            Optional.ofNullable(rmaCaseEntity.getShippedCarrier()).ifPresent(existingRmaCase::setShippedCarrier);
-            Optional.ofNullable(rmaCaseEntity.getCaseId()).ifPresent(existingRmaCase::setCaseId); //fixme
-            Optional.ofNullable(rmaCaseEntity.getShippedDate()).ifPresent(existingRmaCase::setShippedDate);
-            Optional.ofNullable(rmaCaseEntity.getShipToAttention()).ifPresent(existingRmaCase::setShipToAttention);
-            Optional.ofNullable(rmaCaseEntity.getShipToCity()).ifPresent(existingRmaCase::setShipToCity);
-            Optional.ofNullable(rmaCaseEntity.getShipToContactEmail()).ifPresent(existingRmaCase::setShipToContactEmail);
-            Optional.ofNullable(rmaCaseEntity.getShipToCountry()).ifPresent(existingRmaCase::setShipToCountry);
-            Optional.ofNullable(rmaCaseEntity.getShipToPhone()).ifPresent(existingRmaCase::setShipToPhone);
-            Optional.ofNullable(rmaCaseEntity.getShipToPostalCode()).ifPresent(existingRmaCase::setShipToPostalCode);
-            Optional.ofNullable(rmaCaseEntity.getShipToProvince()).ifPresent(existingRmaCase::setShipToProvince);
-            Optional.ofNullable(rmaCaseEntity.getShipToStreet1()).ifPresent(existingRmaCase::setShipToStreet1);
-            Optional.ofNullable(rmaCaseEntity.getTacCase()).ifPresent(existingRmaCase::setTacCase); //fixme
-            Optional.ofNullable(rmaCaseEntity.getVendorRmaNumber()).ifPresent(existingRmaCase::setVendorRmaNumber);
-            return rmaCaseRepository.save(existingRmaCase);
-        }).orElseThrow(() -> new RuntimeException("RMA Case does not exist"));
+    @Transactional
+    public RmaCaseDto partialUpdate(String caseNumber, RmaCaseDto rmaCaseDto) {
+        RmaCaseEntity existingRmaCase = rmaCaseRepository.findByCaseNumber(caseNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case does not exist with case number " + caseNumber));
+
+        // Map updated fields from DTO to existing entity
+        rmaCaseMapper.mapFrom(rmaCaseDto, existingRmaCase);
+
+        RmaCaseEntity updatedRmaCase = rmaCaseRepository.save(existingRmaCase);
+        return rmaCaseMapper.mapTo(updatedRmaCase);
     }
 
     @Override
-    public RmaCaseEntity partialUpdate(String caseNumber, RmaCaseEntity rmaCaseEntity) {
-        return rmaCaseRepository.findByCaseNumber(caseNumber).map(existingRmaCase -> {
-            Optional.ofNullable(rmaCaseEntity.getCaseNumber()).ifPresent(existingRmaCase::setCaseNumber);
-            Optional.ofNullable(rmaCaseEntity.getCaseStatus()).ifPresent(existingRmaCase::setCaseStatus);
-            Optional.ofNullable(rmaCaseEntity.getCustomerTrackingNumber()).ifPresent(existingRmaCase::setCustomerTrackingNumber);
-            Optional.ofNullable(rmaCaseEntity.getContactEmail()).ifPresent(existingRmaCase::setContactEmail);
-            Optional.ofNullable(rmaCaseEntity.getCustomerTrackingNumber()).ifPresent(existingRmaCase::setCustomerTrackingNumber);
-            Optional.ofNullable(rmaCaseEntity.getFailureAnalysisFinishedDate()).ifPresent(existingRmaCase::setFailureAnalysisFinishedDate);
-            Optional.ofNullable(rmaCaseEntity.getFailureAnalysisInProgressDate()).ifPresent(existingRmaCase::setFailureAnalysisInProgressDate);
-            Optional.ofNullable(rmaCaseEntity.getFailureAnalysisStartDate()).ifPresent(existingRmaCase::setFailureAnalysisStartDate);
-            Optional.ofNullable(rmaCaseEntity.getFaultyPartDeliveredDate()).ifPresent(existingRmaCase::setFaultyPartDeliveredDate);
-            Optional.ofNullable(rmaCaseEntity.getFaultyPartNumber()).ifPresent(existingRmaCase::setFaultyPartNumber);
-            Optional.ofNullable(rmaCaseEntity.getFaultyPartShippedDate()).ifPresent(existingRmaCase::setFaultyPartShippedDate);
-            Optional.ofNullable(rmaCaseEntity.getFaultySerialNumber()).ifPresent(existingRmaCase::setFaultySerialNumber);
-            Optional.ofNullable(rmaCaseEntity.getHref()).ifPresent(existingRmaCase::setHref);
-            Optional.ofNullable(rmaCaseEntity.getInstallationCountry()).ifPresent(existingRmaCase::setInstallationCountry);
-            Optional.ofNullable(rmaCaseEntity.getNewPartDeliveredDate()).ifPresent(existingRmaCase::setNewPartDeliveredDate);
-            Optional.ofNullable(rmaCaseEntity.getNewPartSerialNumber()).ifPresent(existingRmaCase::setNewPartSerialNumber);
-            Optional.ofNullable(rmaCaseEntity.getNewPartShippedDate()).ifPresent(existingRmaCase::setNewPartShippedDate);
-            Optional.ofNullable(rmaCaseEntity.getProblemDescription()).ifPresent(existingRmaCase::setProblemDescription);
-//            Optional.ofNullable(rmaCaseEntity.getRelatedTacCaseId()).ifPresent(existingRmaCase::setRelatedTacCaseId);
-            Optional.ofNullable(rmaCaseEntity.getRequestType()).ifPresent(existingRmaCase::setRequestType);
-            Optional.ofNullable(rmaCaseEntity.getReturnedPartNumber()).ifPresent(existingRmaCase::setReturnedPartNumber);
-            Optional.ofNullable(rmaCaseEntity.getReturnedSerialNumber()).ifPresent(existingRmaCase::setReturnedSerialNumber);
-            Optional.ofNullable(rmaCaseEntity.getShippedCarrier()).ifPresent(existingRmaCase::setShippedCarrier);
-            Optional.ofNullable(rmaCaseEntity.getCaseId()).ifPresent(existingRmaCase::setCaseId); //fixme
-            Optional.ofNullable(rmaCaseEntity.getShippedDate()).ifPresent(existingRmaCase::setShippedDate);
-            Optional.ofNullable(rmaCaseEntity.getShipToAttention()).ifPresent(existingRmaCase::setShipToAttention);
-            Optional.ofNullable(rmaCaseEntity.getShipToCity()).ifPresent(existingRmaCase::setShipToCity);
-            Optional.ofNullable(rmaCaseEntity.getShipToContactEmail()).ifPresent(existingRmaCase::setShipToContactEmail);
-            Optional.ofNullable(rmaCaseEntity.getShipToCountry()).ifPresent(existingRmaCase::setShipToCountry);
-            Optional.ofNullable(rmaCaseEntity.getShipToPhone()).ifPresent(existingRmaCase::setShipToPhone);
-            Optional.ofNullable(rmaCaseEntity.getShipToPostalCode()).ifPresent(existingRmaCase::setShipToPostalCode);
-            Optional.ofNullable(rmaCaseEntity.getShipToProvince()).ifPresent(existingRmaCase::setShipToProvince);
-            Optional.ofNullable(rmaCaseEntity.getShipToStreet1()).ifPresent(existingRmaCase::setShipToStreet1);
-            Optional.ofNullable(rmaCaseEntity.getTacCase()).ifPresent(existingRmaCase::setTacCase); //fixme
-            Optional.ofNullable(rmaCaseEntity.getVendorRmaNumber()).ifPresent(existingRmaCase::setVendorRmaNumber);
-            return rmaCaseRepository.save(existingRmaCase);
-        }).orElseThrow(() -> new RuntimeException("RMA Case does not exist"));
-    }
-
-    @Override
+    @Transactional
     public void delete(Long id) {
-        rmaCaseRepository.deleteById(id);
+        RmaCaseEntity rmaCase = rmaCaseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("RmaCase not found with id " + id));
+        rmaCaseRepository.delete(rmaCase);
     }
 
     @Override
+    @Transactional
     public void delete(String caseNumber) {
-        rmaCaseRepository.deleteByCaseNumber(caseNumber);
+        RmaCaseEntity rmaCase = rmaCaseRepository.findByCaseNumber(caseNumber)
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case not found with case number " + caseNumber));
+        rmaCaseRepository.delete(rmaCase);
+    }
+
+    // Attachment Operations
+
+    @Override
+    @Transactional
+    public RmaCaseAttachmentDetailDto addAttachment(Long caseId, RmaCaseAttachmentDetailDto rmaCaseAttachmentDetailDto) {
+        RmaCaseEntity rmaCase = rmaCaseRepository.findById(caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case not found with id " + caseId));
+
+        RmaCaseAttachmentEntity attachmentEntity = attachmentDetailMapper.mapFrom(rmaCaseAttachmentDetailDto);
+        rmaCase.addAttachment(attachmentEntity);
+
+        RmaCaseAttachmentEntity savedAttachment = rmaCaseAttachmentRepository.save(attachmentEntity);
+        return attachmentDetailMapper.mapTo(savedAttachment);
+    }
+
+    @Override
+    @Transactional
+    public RmaCaseDto partialUpdate(Long id, RmaCaseDto rmaCaseDto) {
+        RmaCaseEntity existingRmaCase = rmaCaseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case does not exist with id " + id));
+
+        // Map updated fields from DTO to existing entity
+        rmaCaseMapper.mapFrom(rmaCaseDto, existingRmaCase);
+
+        RmaCaseEntity updatedRmaCase = rmaCaseRepository.save(existingRmaCase);
+        return rmaCaseMapper.mapTo(updatedRmaCase);
+    }
+
+    @Override
+    @Transactional
+    public RmaCaseAttachmentDetailDto updateAttachment(Long caseId, Long attachmentId, RmaCaseAttachmentDetailDto rmaCaseAttachmentDetailDto) {
+        RmaCaseAttachmentEntity existingAttachment = rmaCaseAttachmentRepository.findByIdAndRmaCaseId(attachmentId, caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for RmaCase " + caseId));
+
+        // Map updated fields from DTO to existing entity
+        attachmentDetailMapper.mapFrom(rmaCaseAttachmentDetailDto, existingAttachment);
+
+        RmaCaseAttachmentEntity updatedAttachment = rmaCaseAttachmentRepository.save(existingAttachment);
+        return attachmentDetailMapper.mapTo(updatedAttachment);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<RmaCaseAttachmentDetailDto> getAttachment(Long caseId, Long attachmentId) {
+        RmaCaseAttachmentEntity attachmentEntity = rmaCaseAttachmentRepository.findByIdAndRmaCaseId(attachmentId, caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for case " + caseId));
+
+        return Optional.ofNullable(attachmentDetailMapper.mapTo(attachmentEntity));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<RmaCaseAttachmentSummaryDto> listAttachments(Long caseId) {
+        // Check if the RmaCase exists
+        boolean caseExists = rmaCaseRepository.existsById(caseId);
+        if (!caseExists) {
+            throw new ResourceNotFoundException("RmaCase not found with id " + caseId);
+        }
+
+        // Retrieve attachments
+        List<RmaCaseAttachmentEntity> attachments = rmaCaseAttachmentRepository.findAllByRmaCaseId(caseId);
+
+        return attachments.stream()
+                .map(attachmentSummaryMapper::mapTo)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void deleteAttachment(Long caseId, Long attachmentId) {
+        RmaCaseAttachmentEntity existingAttachment = rmaCaseAttachmentRepository.findByIdAndRmaCaseId(attachmentId, caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for RmaCase " + caseId));
+
+        rmaCaseAttachmentRepository.delete(existingAttachment);
     }
 }

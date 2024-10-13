@@ -1,33 +1,41 @@
 package com.beaconstrategists.clientcaseapi.model.entities;
 
 import com.beaconstrategists.clientcaseapi.model.CasePriorityEnum;
-import com.beaconstrategists.clientcaseapi.model.TacCaseStatus;
+import com.beaconstrategists.clientcaseapi.model.CaseStatus;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name = "tac_cases", indexes = {@Index(name = "tac_cn_idx", columnList = "caseNumber", unique = true)})
+@Table(
+        name = "tac_cases",
+        indexes = {@Index(name = "tac_cn_idx", columnList = "caseNumber", unique = true)}
+)
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class TacCaseEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @EqualsAndHashCode.Include
   private Long id;
 
   private String href;
 
+  @Column(nullable = false, unique = true)
   private String caseNumber;
 
-  private TacCaseStatus caseStatus;
+  @Enumerated(EnumType.STRING)
+  private CaseStatus caseStatus;
 
   private Boolean rmaNeeded;
 
@@ -37,6 +45,7 @@ public class TacCaseEntity {
 
   private Integer relatedDispatchCount;
 
+  @Lob
   private String problemDescription;
 
   private String installationCountry;
@@ -46,6 +55,7 @@ public class TacCaseEntity {
 
   private String customerTrackingNumber;
 
+  @Column(nullable = false)
   private String contactEmail;
 
   private String productName;
@@ -58,6 +68,7 @@ public class TacCaseEntity {
 
   private String caseSolutionDescription;
 
+  @Enumerated(EnumType.STRING)
   private CasePriorityEnum casePriority;
 
   private String caseOwner;
@@ -78,8 +89,34 @@ public class TacCaseEntity {
 
   private String faultyPartNumber;
 
-  //TODO: fix
-//  @Valid
-//  private JsonNullable<List<@Valid NoteEntity>> notes = JsonNullable.<List<@Valid NoteEntity>>undefined();
-}
+  @OneToMany(mappedBy = "tacCase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JsonManagedReference
+  private List<TacCaseAttachmentEntity> attachments = new ArrayList<>();
 
+  // Helper methods to manage bi-directional relationship
+  public void addAttachment(TacCaseAttachmentEntity attachment) {
+    attachments.add(attachment);
+    attachment.setTacCase(this);
+  }
+
+  public void removeAttachment(TacCaseAttachmentEntity attachment) {
+    attachments.remove(attachment);
+    attachment.setTacCase(null);
+  }
+
+  @OneToMany(mappedBy = "tacCase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+  @JsonManagedReference
+  private List<RmaCaseEntity> rmaCases = new ArrayList<>();
+
+  public void addRmaCase(RmaCaseEntity rmaCase) {
+    rmaCases.add(rmaCase);
+    rmaCase.setTacCase(this);
+  }
+
+  public void removeRmaCase(RmaCaseEntity rmaCase) {
+    rmaCases.remove(rmaCase);
+    rmaCase.setTacCase(null);
+  }
+
+
+}

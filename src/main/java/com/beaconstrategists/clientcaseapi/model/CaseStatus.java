@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
 @AllArgsConstructor
-public enum TacCaseStatus {
+public enum CaseStatus {
   
   OPEN("open"),
   
@@ -36,8 +36,8 @@ public enum TacCaseStatus {
   }
 
   @JsonCreator
-  public static TacCaseStatus fromValue(String value) {
-    for (TacCaseStatus b : TacCaseStatus.values()) {
+  public static CaseStatus fromValue(String value) {
+    for (CaseStatus b : CaseStatus.values()) {
       if (b.value.equals(value)) {
         return b;
       }
