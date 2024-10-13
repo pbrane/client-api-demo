@@ -1,15 +1,19 @@
 package com.beaconstrategists.clientcaseapi.controllers;
 
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentDetailDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentSummaryDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentDownloadDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentResponseDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentUploadDto;
 import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseDto;
 import com.beaconstrategists.clientcaseapi.services.TacCaseService;
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +28,7 @@ public class TacCaseController {
         this.tacCaseService = tacCaseService;
     }
 
-    @GetMapping(path = "/")
+    @GetMapping(path = "")
     public ResponseEntity<List<TacCaseDto>> listTacCases(
             @RequestParam(value = "caseNumber", required = false) String caseNumber) {
         if (caseNumber != null) {
@@ -47,7 +51,7 @@ public class TacCaseController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping(path = "/")
+    @PostMapping(path = "")
     public ResponseEntity<TacCaseDto> createTacCase(@Valid @RequestBody TacCaseDto tacCaseDto) {
         TacCaseDto tacCaseDtoSaved = tacCaseService.save(tacCaseDto);
         return new ResponseEntity<>(tacCaseDtoSaved, HttpStatus.CREATED);
@@ -87,44 +91,57 @@ public class TacCaseController {
         return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(path = "/{caseId}/attachments")
-    public ResponseEntity<List<TacCaseAttachmentSummaryDto>> listAttachments(@PathVariable Long caseId) {
-        List<TacCaseAttachmentSummaryDto> attachments = tacCaseService.listAttachments(caseId);
-        return ResponseEntity.ok(attachments);
+
+
+    //Attachments
+
+    @PostMapping("/{id}/attachments")
+    public ResponseEntity<TacCaseAttachmentResponseDto> uploadAttachment(
+            @PathVariable Long id,
+            @Valid @ModelAttribute TacCaseAttachmentUploadDto uploadDto) {
+
+        try {
+            TacCaseAttachmentResponseDto responseDto = tacCaseService.addAttachment(id, uploadDto);
+            return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            // Handle validation errors
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            // Handle file processing exceptions
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping(path = "/{caseId}/attachments/{attachmentId}")
-    public ResponseEntity<TacCaseAttachmentDetailDto> getAttachment(
-            @PathVariable Long caseId,
-            @PathVariable Long attachmentId) {
-        Optional<TacCaseAttachmentDetailDto> attachmentDetail = tacCaseService.getAttachment(caseId, attachmentId);
-        return attachmentDetail.map(ResponseEntity::ok)
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    @GetMapping("/{id}/attachments")
+    public ResponseEntity<List<TacCaseAttachmentResponseDto>> getAllAttachments(@PathVariable Long id) {
+        List<TacCaseAttachmentResponseDto> attachments = tacCaseService.getAllAttachments(id);
+        return new ResponseEntity<>(attachments, HttpStatus.OK);
     }
 
-    @PostMapping(path = "/{caseId}/attachments")
-    public ResponseEntity<TacCaseAttachmentDetailDto> addAttachment(
-            @PathVariable Long caseId,
-            @Valid @RequestBody TacCaseAttachmentDetailDto tacCaseAttachmentDetailDto) {
-        TacCaseAttachmentDetailDto savedAttachment = tacCaseService.addAttachment(caseId, tacCaseAttachmentDetailDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedAttachment);
-    }
-
-    @PutMapping(path = "/{caseId}/attachments/{attachmentId}")
-    public ResponseEntity<TacCaseAttachmentDetailDto> updateAttachment(
-            @PathVariable Long caseId,
-            @PathVariable Long attachmentId,
-            @Valid @RequestBody TacCaseAttachmentDetailDto tacCaseAttachmentDetailDto) {
-        TacCaseAttachmentDetailDto updatedAttachment = tacCaseService.updateAttachment(caseId, attachmentId, tacCaseAttachmentDetailDto);
-        return ResponseEntity.ok(updatedAttachment);
-    }
-
-    @DeleteMapping(path = "/{caseId}/attachments/{attachmentId}")
+    @DeleteMapping("/{caseId}/attachments/{attachmentId}")
     public ResponseEntity<Void> deleteAttachment(
             @PathVariable Long caseId,
             @PathVariable Long attachmentId) {
         tacCaseService.deleteAttachment(caseId, attachmentId);
-        return ResponseEntity.noContent().build();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/{id}/attachments")
+    public ResponseEntity<Void> deleteAllAttachments(@PathVariable Long id) {
+        tacCaseService.deleteAllAttachments(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{caseId}/attachments/{attachmentId}/download")
+    public ResponseEntity<Resource> downloadAttachment(
+            @PathVariable Long caseId,
+            @PathVariable Long attachmentId) {
+        TacCaseAttachmentDownloadDto downloadDto = tacCaseService.getAttachmentDownload(caseId, attachmentId);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + downloadDto.getName() + "\"")
+                .contentType(MediaType.parseMediaType(downloadDto.getMimeType()))
+                .body(downloadDto.getResource());
     }
 
 }

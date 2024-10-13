@@ -89,21 +89,6 @@ public class TacCaseEntity {
 
   private String faultyPartNumber;
 
-  @OneToMany(mappedBy = "tacCase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-  @JsonManagedReference
-  private List<TacCaseAttachmentEntity> attachments = new ArrayList<>();
-
-  // Helper methods to manage bi-directional relationship
-  public void addAttachment(TacCaseAttachmentEntity attachment) {
-    attachments.add(attachment);
-    attachment.setTacCase(this);
-  }
-
-  public void removeAttachment(TacCaseAttachmentEntity attachment) {
-    attachments.remove(attachment);
-    attachment.setTacCase(null);
-  }
-
   @OneToMany(mappedBy = "tacCase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
   @JsonManagedReference
   private List<RmaCaseEntity> rmaCases = new ArrayList<>();
@@ -118,5 +103,19 @@ public class TacCaseEntity {
     rmaCase.setTacCase(null);
   }
 
+  @OneToMany(mappedBy = "tacCase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+  @JsonManagedReference
+  private List<TacCaseAttachmentEntity> attachments = new ArrayList<>();
+
+  // Helper methods to manage bi-directional relationship
+  public void addAttachment(TacCaseAttachmentEntity attachment) {
+    attachments.add(attachment);
+    attachment.setTacCase(this);
+  }
+
+  public void removeAttachment(TacCaseAttachmentEntity attachment) {
+    attachments.remove(attachment);
+    attachment.setTacCase(null);
+  }
 
 }

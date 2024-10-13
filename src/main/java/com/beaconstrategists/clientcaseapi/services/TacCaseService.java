@@ -1,9 +1,11 @@
 package com.beaconstrategists.clientcaseapi.services;
 
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentDetailDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentSummaryDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentDownloadDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentResponseDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentUploadDto;
 import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseDto;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +23,9 @@ public interface TacCaseService {
     void delete(String caseNumber);
 
     // Attachment Operations
-    TacCaseAttachmentDetailDto addAttachment(Long caseId, TacCaseAttachmentDetailDto tacCaseAttachmentDetailDto);
-    TacCaseAttachmentDetailDto updateAttachment(Long caseId, Long attachmentId, TacCaseAttachmentDetailDto tacCaseAttachmentDetailDto);
-    Optional<TacCaseAttachmentDetailDto> getAttachment(Long caseId, Long attachmentId);
-    List<TacCaseAttachmentSummaryDto> listAttachments(Long caseId);
+    TacCaseAttachmentResponseDto addAttachment(Long caseId, TacCaseAttachmentUploadDto uploadDto) throws IOException;
+    List<TacCaseAttachmentResponseDto> getAllAttachments(Long caseId);
+    TacCaseAttachmentDownloadDto getAttachmentDownload(Long caseId, Long attachmentId);
     void deleteAttachment(Long caseId, Long attachmentId);
+    void deleteAllAttachments(Long caseId);
 }

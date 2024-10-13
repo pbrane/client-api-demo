@@ -1,21 +1,24 @@
 package com.beaconstrategists.clientcaseapi.services.impl;
 
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentDetailDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentSummaryDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentDownloadDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentResponseDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentUploadDto;
 import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseDto;
 import com.beaconstrategists.clientcaseapi.exceptions.ResourceNotFoundException;
-import com.beaconstrategists.clientcaseapi.mappers.impl.TacCaseAttachmentDetailMapperImpl;
-import com.beaconstrategists.clientcaseapi.mappers.impl.TacCaseAttachmentSummaryMapperImpl;
+import com.beaconstrategists.clientcaseapi.mappers.TacCaseAttachmentDownloadMapper;
+import com.beaconstrategists.clientcaseapi.mappers.TacCaseAttachmentResponseMapper;
 import com.beaconstrategists.clientcaseapi.mappers.impl.TacCaseMapperImpl;
-import com.beaconstrategists.clientcaseapi.model.entities.RmaCaseEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.TacCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.TacCaseEntity;
 import com.beaconstrategists.clientcaseapi.repositories.TacCaseAttachmentRepository;
 import com.beaconstrategists.clientcaseapi.repositories.TacCaseRepository;
 import com.beaconstrategists.clientcaseapi.services.TacCaseService;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -26,20 +29,21 @@ public class TacCaseServiceImpl implements TacCaseService {
 
     private final TacCaseRepository tacCaseRepository;
     private final TacCaseAttachmentRepository tacCaseAttachmentRepository;
-    private final TacCaseAttachmentDetailMapperImpl attachmentDetailMapper;
-    private final TacCaseAttachmentSummaryMapperImpl attachmentSummaryMapper;
     private final TacCaseMapperImpl tacCaseMapper;
+    private final TacCaseAttachmentResponseMapper responseMapper;
+    private final TacCaseAttachmentDownloadMapper downloadMapper;
+
 
     public TacCaseServiceImpl(TacCaseRepository tacCaseRepository,
                               TacCaseAttachmentRepository tacCaseAttachmentRepository,
-                              TacCaseAttachmentDetailMapperImpl attachmentDetailMapper,
-                              TacCaseAttachmentSummaryMapperImpl attachmentSummaryMapper,
-                              TacCaseMapperImpl tacCaseMapper) {
+                              TacCaseMapperImpl tacCaseMapper,
+                              TacCaseAttachmentResponseMapper responseMapper,
+                              TacCaseAttachmentDownloadMapper downloadMapper) {
         this.tacCaseRepository = tacCaseRepository;
         this.tacCaseAttachmentRepository = tacCaseAttachmentRepository;
-        this.attachmentDetailMapper = attachmentDetailMapper;
-        this.attachmentSummaryMapper = attachmentSummaryMapper;
         this.tacCaseMapper = tacCaseMapper;
+        this.responseMapper = responseMapper;
+        this.downloadMapper = downloadMapper;
     }
 
     // CRUD Operations for TacCase
@@ -90,6 +94,19 @@ public class TacCaseServiceImpl implements TacCaseService {
 
     @Override
     @Transactional
+    public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
+        TacCaseEntity existingTacCase = tacCaseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case does not exist with id " + id));
+
+        // Map updated fields from DTO to existing entity
+        tacCaseMapper.mapFrom(tacCaseDto, existingTacCase);
+
+        TacCaseEntity updatedTacCase = tacCaseRepository.save(existingTacCase);
+        return tacCaseMapper.mapTo(updatedTacCase);
+    }
+
+    @Override
+    @Transactional
     public TacCaseDto partialUpdate(String caseNumber, TacCaseDto tacCaseDto) {
         TacCaseEntity existingTacCase = tacCaseRepository.findByCaseNumber(caseNumber)
                 .orElseThrow(() -> new ResourceNotFoundException("TAC Case does not exist with case number " + caseNumber));
@@ -121,75 +138,88 @@ public class TacCaseServiceImpl implements TacCaseService {
 
     @Override
     @Transactional
-    public TacCaseAttachmentDetailDto addAttachment(Long caseId, TacCaseAttachmentDetailDto tacCaseAttachmentDetailDto) {
+    public TacCaseAttachmentResponseDto addAttachment(Long caseId, TacCaseAttachmentUploadDto uploadDto) throws IOException {
         TacCaseEntity tacCase = tacCaseRepository.findById(caseId)
-                .orElseThrow(() -> new ResourceNotFoundException("TAC Case not found with id " + caseId));
+                .orElseThrow(() -> new ResourceNotFoundException("RMA Case not found with id " + caseId));
 
-        TacCaseAttachmentEntity attachmentEntity = attachmentDetailMapper.mapFrom(tacCaseAttachmentDetailDto);
-        tacCase.addAttachment(attachmentEntity);
-
-        TacCaseAttachmentEntity savedAttachment = tacCaseAttachmentRepository.save(attachmentEntity);
-        return attachmentDetailMapper.mapTo(savedAttachment);
-    }
-
-    @Override
-    @Transactional
-    public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
-        TacCaseEntity existingTacCase = tacCaseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("TAC Case does not exist with id " + id));
-
-        // Map updated fields from DTO to existing entity
-        tacCaseMapper.mapFrom(tacCaseDto, existingTacCase);
-
-        TacCaseEntity updatedTacCase = tacCaseRepository.save(existingTacCase);
-        return tacCaseMapper.mapTo(updatedTacCase);
-    }
-
-    @Override
-    @Transactional
-    public TacCaseAttachmentDetailDto updateAttachment(Long caseId, Long attachmentId, TacCaseAttachmentDetailDto tacCaseAttachmentDetailDto) {
-        TacCaseAttachmentEntity existingAttachment = tacCaseAttachmentRepository.findByIdAndTacCaseId(attachmentId, caseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for TacCase " + caseId));
-
-        // Map updated fields from DTO to existing entity
-        attachmentDetailMapper.mapFrom(tacCaseAttachmentDetailDto, existingAttachment);
-
-        TacCaseAttachmentEntity updatedAttachment = tacCaseAttachmentRepository.save(existingAttachment);
-        return attachmentDetailMapper.mapTo(updatedAttachment);
-    }
-
-    @Override
-    @Transactional
-    public Optional<TacCaseAttachmentDetailDto> getAttachment(Long caseId, Long attachmentId) {
-        TacCaseAttachmentEntity attachmentEntity = tacCaseAttachmentRepository.findByIdAndTacCaseId(attachmentId, caseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for case " + caseId));
-
-        return Optional.ofNullable(attachmentDetailMapper.mapTo(attachmentEntity));
-    }
-
-    @Override
-    @Transactional
-    public List<TacCaseAttachmentSummaryDto> listAttachments(Long caseId) {
-        // Check if the TacCase exists
-        boolean caseExists = tacCaseRepository.existsById(caseId);
-        if (!caseExists) {
-            throw new ResourceNotFoundException("TacCase not found with id " + caseId);
+        // Extract file and metadata
+        MultipartFile file = uploadDto.getFile();
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File must be provided and not empty.");
         }
 
-        // Retrieve attachments
-        List<TacCaseAttachmentEntity> attachments = tacCaseAttachmentRepository.findAllByTacCaseId(caseId);
+        // Optional: Validate file type
+        validateFileType(file);
 
-        return attachments.stream()
-                .map(attachmentSummaryMapper::mapTo)
+        TacCaseAttachmentEntity attachmentEntity = TacCaseAttachmentEntity.builder()
+                .name(Optional.ofNullable(uploadDto.getName()).orElse(file.getOriginalFilename()))
+                .mimeType(Optional.ofNullable(uploadDto.getMimeType()).orElse(file.getContentType()))
+                .content(file.getBytes())
+                .description(uploadDto.getDescription())
+                .size((float) file.getSize())
+                .tacCase(tacCase)
+                .build();
+
+        tacCase.addAttachment(attachmentEntity);
+        tacCaseAttachmentRepository.save(attachmentEntity);
+
+        return responseMapper.mapTo(attachmentEntity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TacCaseAttachmentResponseDto> getAllAttachments(Long caseId) {
+        TacCaseEntity rmaCase = tacCaseRepository.findById(caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("RMA Case not found with id " + caseId));
+
+        return rmaCase.getAttachments().stream()
+                .map(responseMapper::mapTo)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TacCaseAttachmentDownloadDto getAttachmentDownload(Long caseId, Long attachmentId) {
+        TacCaseAttachmentEntity attachment = tacCaseAttachmentRepository.findById(attachmentId)
+                .filter(a -> a.getTacCase().getId().equals(caseId))
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for RMA Case " + caseId));
+
+        return downloadMapper.mapTo(attachment);
     }
 
     @Override
     @Transactional
     public void deleteAttachment(Long caseId, Long attachmentId) {
-        TacCaseAttachmentEntity existingAttachment = tacCaseAttachmentRepository.findByIdAndTacCaseId(attachmentId, caseId)
-                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for TacCase " + caseId));
+        TacCaseAttachmentEntity attachment = tacCaseAttachmentRepository.findById(attachmentId)
+                .filter(a -> a.getTacCase().getId().equals(caseId))
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for RMA Case " + caseId));
 
-        tacCaseAttachmentRepository.delete(existingAttachment);
+        tacCaseAttachmentRepository.delete(attachment);
     }
+
+    @Override
+    @Transactional
+    public void deleteAllAttachments(Long caseId) {
+        TacCaseEntity rmaCase = tacCaseRepository.findById(caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("RMA Case not found with id " + caseId));
+
+        List<TacCaseAttachmentEntity> attachments = rmaCase.getAttachments();
+
+        if (!attachments.isEmpty()) {
+            tacCaseAttachmentRepository.deleteAll(attachments);
+        }
+    }
+
+    /**
+     * Validates the MIME type of the uploaded file.
+     *
+     * @param file the uploaded MultipartFile
+     */
+    private void validateFileType(MultipartFile file) {
+        List<String> allowedMimeTypes = Arrays.asList("application/pdf", "image/jpeg", "image/png"); // Extend as needed
+        if (!allowedMimeTypes.contains(file.getContentType())) {
+            throw new IllegalArgumentException("Unsupported file type: " + file.getContentType());
+        }
+    }
+
 }

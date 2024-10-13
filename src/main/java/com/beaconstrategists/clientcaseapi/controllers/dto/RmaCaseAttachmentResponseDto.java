@@ -3,10 +3,10 @@ package com.beaconstrategists.clientcaseapi.controllers.dto;
 import lombok.Data;
 
 @Data
-public class RmaCaseAttachmentSummaryDto {
+public class RmaCaseAttachmentResponseDto {
     private Long id;
     private String name;
+    private String description;
     private String mimeType;
     private Float size;
-    // Exclude 'description' and 'content' for summary
 }

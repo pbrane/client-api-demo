@@ -1,9 +1,11 @@
 package com.beaconstrategists.clientcaseapi.services;
 
-import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentDetailDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentSummaryDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentDownloadDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentUploadDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentResponseDto;
 import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseDto;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,9 +23,9 @@ public interface RmaCaseService {
     void delete(String caseNumber);
 
     // Attachment Operations
-    RmaCaseAttachmentDetailDto addAttachment(Long caseId, RmaCaseAttachmentDetailDto rmaCaseAttachmentDetailDto);
-    RmaCaseAttachmentDetailDto updateAttachment(Long caseId, Long attachmentId, RmaCaseAttachmentDetailDto rmaCaseAttachmentDetailDto);
-    Optional<RmaCaseAttachmentDetailDto> getAttachment(Long caseId, Long attachmentId);
-    List<RmaCaseAttachmentSummaryDto> listAttachments(Long caseId);
+    RmaCaseAttachmentResponseDto addAttachment(Long caseId, RmaCaseAttachmentUploadDto uploadDto) throws IOException;
+    List<RmaCaseAttachmentResponseDto> getAllAttachments(Long caseId);
+    RmaCaseAttachmentDownloadDto getAttachmentDownload(Long caseId, Long attachmentId);
     void deleteAttachment(Long caseId, Long attachmentId);
+    void deleteAllAttachments(Long caseId);
 }

@@ -1,15 +1,19 @@
 package com.beaconstrategists.clientcaseapi.controllers;
 
-import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentDetailDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentSummaryDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentDownloadDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentResponseDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentUploadDto;
 import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseDto;
 import com.beaconstrategists.clientcaseapi.services.RmaCaseService;
 import jakarta.validation.Valid;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -24,7 +28,7 @@ public class RmaCaseController {
         this.rmaCaseService = rmaCaseService;
     }
 
-    @GetMapping(path = "/")
+    @GetMapping(path = "")
     public ResponseEntity<List<RmaCaseDto>> listRmaCases(
             @RequestParam(value = "caseNumber", required = false) String caseNumber) {
         if (caseNumber != null) {
@@ -47,7 +51,7 @@ public class RmaCaseController {
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
-    @PostMapping(path = "/")
+    @PostMapping(path = "")
     public ResponseEntity<RmaCaseDto> createRmaCase(@Valid @RequestBody RmaCaseDto rmaCaseDto) {
         RmaCaseDto rmaCaseDtoSaved = rmaCaseService.save(rmaCaseDto);
         return new ResponseEntity<>(rmaCaseDtoSaved, HttpStatus.CREATED);
@@ -87,44 +91,57 @@ public class RmaCaseController {
         return new ResponseEntity<>(headers, HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping(path = "/{caseId}/attachments")
-    public ResponseEntity<List<RmaCaseAttachmentSummaryDto>> listAttachments(@PathVariable Long caseId) {
-        List<RmaCaseAttachmentSummaryDto> attachments = rmaCaseService.listAttachments(caseId);
-        return ResponseEntity.ok(attachments);
+
+
+    //Attachments
+
+    @PostMapping("/{id}/attachments")
+    public ResponseEntity<RmaCaseAttachmentResponseDto> uploadAttachment(
+            @PathVariable Long id,
+            @Valid @ModelAttribute RmaCaseAttachmentUploadDto uploadDto) {
+
+        try {
+            RmaCaseAttachmentResponseDto responseDto = rmaCaseService.addAttachment(id, uploadDto);
+            return new ResponseEntity<>(responseDto, HttpStatus.CREATED);
+        } catch (IllegalArgumentException e) {
+            // Handle validation errors
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            // Handle file processing exceptions
+            return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
     }
 
-    @GetMapping(path = "/{caseId}/attachments/{attachmentId}")
-    public ResponseEntity<RmaCaseAttachmentDetailDto> getAttachment(
-            @PathVariable Long caseId,
-            @PathVariable Long attachmentId) {
-        Optional<RmaCaseAttachmentDetailDto> attachmentDetail = rmaCaseService.getAttachment(caseId, attachmentId);
-        return attachmentDetail.map(ResponseEntity::ok)
-                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    @GetMapping("/{id}/attachments")
+    public ResponseEntity<List<RmaCaseAttachmentResponseDto>> getAllAttachments(@PathVariable Long id) {
+        List<RmaCaseAttachmentResponseDto> attachments = rmaCaseService.getAllAttachments(id);
+        return new ResponseEntity<>(attachments, HttpStatus.OK);
     }
 
-    @PostMapping(path = "/{caseId}/attachments")
-    public ResponseEntity<RmaCaseAttachmentDetailDto> addAttachment(
-            @PathVariable Long caseId,
-            @Valid @RequestBody RmaCaseAttachmentDetailDto rmaCaseAttachmentDetailDto) {
-        RmaCaseAttachmentDetailDto savedAttachment = rmaCaseService.addAttachment(caseId, rmaCaseAttachmentDetailDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedAttachment);
-    }
-
-    @PutMapping(path = "/{caseId}/attachments/{attachmentId}")
-    public ResponseEntity<RmaCaseAttachmentDetailDto> updateAttachment(
-            @PathVariable Long caseId,
-            @PathVariable Long attachmentId,
-            @Valid @RequestBody RmaCaseAttachmentDetailDto rmaCaseAttachmentDetailDto) {
-        RmaCaseAttachmentDetailDto updatedAttachment = rmaCaseService.updateAttachment(caseId, attachmentId, rmaCaseAttachmentDetailDto);
-        return ResponseEntity.ok(updatedAttachment);
-    }
-
-    @DeleteMapping(path = "/{caseId}/attachments/{attachmentId}")
+    @DeleteMapping("/{caseId}/attachments/{attachmentId}")
     public ResponseEntity<Void> deleteAttachment(
             @PathVariable Long caseId,
             @PathVariable Long attachmentId) {
         rmaCaseService.deleteAttachment(caseId, attachmentId);
-        return ResponseEntity.noContent().build();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/{id}/attachments")
+    public ResponseEntity<Void> deleteAllAttachments(@PathVariable Long id) {
+        rmaCaseService.deleteAllAttachments(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @GetMapping("/{caseId}/attachments/{attachmentId}/download")
+    public ResponseEntity<Resource> downloadAttachment(
+            @PathVariable Long caseId,
+            @PathVariable Long attachmentId) {
+        RmaCaseAttachmentDownloadDto downloadDto = rmaCaseService.getAttachmentDownload(caseId, attachmentId);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + downloadDto.getName() + "\"")
+                .contentType(MediaType.parseMediaType(downloadDto.getMimeType()))
+                .body(downloadDto.getResource());
     }
 
 }
