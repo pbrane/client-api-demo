@@ -25,7 +25,7 @@ Welcome to the **TAC Case and RMA Case API** documentation. This API enables app
     - [TacCaseNoteEntity](#taccasenoteentity)
 6. [Error Handling](#error-handling)
 7. [Authentication & Authorization](#authentication--authorization)
-8. [Testing](#testing)
+8. [Running, Testing, Contributing](#running--testing--contributing)
 9. [Contributing](#contributing)
 10. [License](#license)
 11. [Contact](#contact)
@@ -561,7 +561,7 @@ Implementing security ensures that only authorized users can access and manipula
 
 ---
 
-## Testing
+## Running / Testing / Contributing
 
 Comprehensive testing ensures the reliability and correctness of the API. The project includes:
 
@@ -580,7 +580,7 @@ mvn test
 
 ---
 
-## Contributing
+### Contributing
 
 Contributions are welcome! Please follow these steps to contribute:
 
@@ -621,7 +621,11 @@ Contributions are welcome! Please follow these steps to contribute:
 
     Navigate to the original repository and click on "Compare & pull request". Provide a detailed description of your changes.
 
-**Please ensure that your code adheres to the project's coding standards and includes relevant tests.**
+### Running
+
+```bash
+mvn spring-boot:run    
+```
 
 ---
 
