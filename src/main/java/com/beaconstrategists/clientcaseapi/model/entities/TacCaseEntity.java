@@ -41,9 +41,9 @@ public class TacCaseEntity {
 
   private String subject;
 
-  private Integer relatedRmaCount;
+  private Integer relatedRmaCount;  //fixme this needs implementation
 
-  private Integer relatedDispatchCount;
+  private Integer relatedDispatchCount; //fixme this needs implementation
 
   @Lob
   private String problemDescription;
@@ -101,6 +101,15 @@ public class TacCaseEntity {
   public void removeRmaCase(RmaCaseEntity rmaCase) {
     rmaCases.remove(rmaCase);
     rmaCase.setTacCase(null);
+  }
+
+  @OneToMany(mappedBy = "tacCase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+  @JsonManagedReference
+  private List<TacCaseNoteEntity> tacCaseNotes = new ArrayList<>();
+
+  public void addTacCaseNote(TacCaseNoteEntity tacCaseNote) {
+    tacCaseNotes.add(tacCaseNote);
+    tacCaseNote.setTacCase(this);
   }
 
   @OneToMany(mappedBy = "tacCase", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

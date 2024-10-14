@@ -1,16 +1,18 @@
 package com.beaconstrategists.clientcaseapi.services.impl;
 
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentDownloadDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentResponseDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentUploadDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.*;
 import com.beaconstrategists.clientcaseapi.exceptions.ResourceNotFoundException;
 import com.beaconstrategists.clientcaseapi.mappers.TacCaseAttachmentDownloadMapper;
 import com.beaconstrategists.clientcaseapi.mappers.TacCaseAttachmentResponseMapper;
+import com.beaconstrategists.clientcaseapi.mappers.TacCaseNoteDownloadMapper;
+import com.beaconstrategists.clientcaseapi.mappers.TacCaseNoteResponseMapper;
 import com.beaconstrategists.clientcaseapi.mappers.impl.TacCaseMapperImpl;
+import com.beaconstrategists.clientcaseapi.model.entities.RmaCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.TacCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.TacCaseEntity;
+import com.beaconstrategists.clientcaseapi.model.entities.TacCaseNoteEntity;
 import com.beaconstrategists.clientcaseapi.repositories.TacCaseAttachmentRepository;
+import com.beaconstrategists.clientcaseapi.repositories.TacCaseNoteRepository;
 import com.beaconstrategists.clientcaseapi.repositories.TacCaseRepository;
 import com.beaconstrategists.clientcaseapi.services.TacCaseService;
 import org.springframework.stereotype.Service;
@@ -30,20 +32,26 @@ public class TacCaseServiceImpl implements TacCaseService {
     private final TacCaseRepository tacCaseRepository;
     private final TacCaseAttachmentRepository tacCaseAttachmentRepository;
     private final TacCaseMapperImpl tacCaseMapper;
-    private final TacCaseAttachmentResponseMapper responseMapper;
-    private final TacCaseAttachmentDownloadMapper downloadMapper;
+    private final TacCaseAttachmentResponseMapper tacCaseAttachmentResponseMapper;
+    private final TacCaseAttachmentDownloadMapper tacCaseAttachmentDownloadMapper;
+    private final TacCaseNoteResponseMapper tacCaseNoteResponseMapper;
+    private final TacCaseNoteDownloadMapper tacCaseNoteDownloadMapper;
+    private final TacCaseNoteRepository tacCaseNoteRepository;
 
 
     public TacCaseServiceImpl(TacCaseRepository tacCaseRepository,
                               TacCaseAttachmentRepository tacCaseAttachmentRepository,
                               TacCaseMapperImpl tacCaseMapper,
-                              TacCaseAttachmentResponseMapper responseMapper,
-                              TacCaseAttachmentDownloadMapper downloadMapper) {
+                              TacCaseAttachmentResponseMapper tacCaseAttachmentResponseMapper,
+                              TacCaseAttachmentDownloadMapper tacCaseAttachmentDownloadMapper, TacCaseNoteResponseMapper tacCaseNoteResponseMapper, TacCaseNoteDownloadMapper tacCaseNoteDownloadMapper, TacCaseNoteRepository tacCaseNoteRepository) {
         this.tacCaseRepository = tacCaseRepository;
         this.tacCaseAttachmentRepository = tacCaseAttachmentRepository;
         this.tacCaseMapper = tacCaseMapper;
-        this.responseMapper = responseMapper;
-        this.downloadMapper = downloadMapper;
+        this.tacCaseAttachmentResponseMapper = tacCaseAttachmentResponseMapper;
+        this.tacCaseAttachmentDownloadMapper = tacCaseAttachmentDownloadMapper;
+        this.tacCaseNoteResponseMapper = tacCaseNoteResponseMapper;
+        this.tacCaseNoteDownloadMapper = tacCaseNoteDownloadMapper;
+        this.tacCaseNoteRepository = tacCaseNoteRepository;
     }
 
     // CRUD Operations for TacCase
@@ -144,7 +152,6 @@ public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
     }).orElseThrow(() -> new RuntimeException("TAC Case does not exist"));
 }
 
-
     @Override
     @Transactional
     public TacCaseDto partialUpdate(String caseNumber, TacCaseDto tacCaseDto) {
@@ -174,13 +181,16 @@ public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
         tacCaseRepository.delete(tacCase);
     }
 
-    // Attachment Operations
+
+    /* Attachment Ops
+        Fixme for this exposes weirdness in the API. Why navigate by caseId if we only require the attachmentId in these operations
+    */
 
     @Override
     @Transactional
     public TacCaseAttachmentResponseDto addAttachment(Long caseId, TacCaseAttachmentUploadDto uploadDto) throws IOException {
         TacCaseEntity tacCase = tacCaseRepository.findById(caseId)
-                .orElseThrow(() -> new ResourceNotFoundException("RMA Case not found with id " + caseId));
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case not found with id " + caseId));
 
         // Extract file and metadata
         MultipartFile file = uploadDto.getFile();
@@ -203,17 +213,17 @@ public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
         tacCase.addAttachment(attachmentEntity);
         tacCaseAttachmentRepository.save(attachmentEntity);
 
-        return responseMapper.mapTo(attachmentEntity);
+        return tacCaseAttachmentResponseMapper.mapTo(attachmentEntity);
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<TacCaseAttachmentResponseDto> getAllAttachments(Long caseId) {
-        TacCaseEntity rmaCase = tacCaseRepository.findById(caseId)
-                .orElseThrow(() -> new ResourceNotFoundException("RMA Case not found with id " + caseId));
+        TacCaseEntity tacCase = tacCaseRepository.findById(caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case not found with id " + caseId));
 
-        return rmaCase.getAttachments().stream()
-                .map(responseMapper::mapTo)
+        return tacCase.getAttachments().stream()
+                .map(tacCaseAttachmentResponseMapper::mapTo)
                 .collect(Collectors.toList());
     }
 
@@ -222,9 +232,19 @@ public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
     public TacCaseAttachmentDownloadDto getAttachmentDownload(Long caseId, Long attachmentId) {
         TacCaseAttachmentEntity attachment = tacCaseAttachmentRepository.findById(attachmentId)
                 .filter(a -> a.getTacCase().getId().equals(caseId))
-                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for RMA Case " + caseId));
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for TAC Case " + caseId));
 
-        return downloadMapper.mapTo(attachment);
+        return tacCaseAttachmentDownloadMapper.mapTo(attachment);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TacCaseAttachmentResponseDto getAttachment(Long caseId, Long attachmentId) {
+        TacCaseAttachmentEntity attachment = tacCaseAttachmentRepository.findById(attachmentId)
+                .filter(a -> a.getTacCase().getId().equals(caseId))
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for TAC Case " + caseId));
+
+        return tacCaseAttachmentResponseMapper.mapTo(attachment);
     }
 
     @Override
@@ -232,7 +252,7 @@ public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
     public void deleteAttachment(Long caseId, Long attachmentId) {
         TacCaseAttachmentEntity attachment = tacCaseAttachmentRepository.findById(attachmentId)
                 .filter(a -> a.getTacCase().getId().equals(caseId))
-                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for RMA Case " + caseId));
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for TAC Case " + caseId));
 
         tacCaseAttachmentRepository.delete(attachment);
     }
@@ -240,13 +260,80 @@ public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
     @Override
     @Transactional
     public void deleteAllAttachments(Long caseId) {
-        TacCaseEntity rmaCase = tacCaseRepository.findById(caseId)
-                .orElseThrow(() -> new ResourceNotFoundException("RMA Case not found with id " + caseId));
+        TacCaseEntity tacCase = tacCaseRepository.findById(caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case not found with id " + caseId));
 
-        List<TacCaseAttachmentEntity> attachments = rmaCase.getAttachments();
+        List<TacCaseAttachmentEntity> attachments = tacCase.getAttachments();
 
         if (!attachments.isEmpty()) {
             tacCaseAttachmentRepository.deleteAll(attachments);
+        }
+    }
+
+
+    /* Note Ops
+        Fixme for this exposes weirdness in the API. Why navigate by caseId if we only require the attachmentId in these operations
+    */
+
+    @Override
+    @Transactional
+    public TacCaseNoteResponseDto addNote(Long caseId, TacCaseNoteUploadDto uploadDto) throws IOException {
+        TacCaseEntity tacCase = tacCaseRepository.findById(caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case not found with id " + caseId));
+
+        TacCaseNoteEntity noteEntity = TacCaseNoteEntity.builder()
+                .author(uploadDto.getAuthor())
+                .date(uploadDto.getDate())
+                .text(uploadDto.getText())
+                .tacCase(tacCase)
+                .build();
+
+        tacCase.addTacCaseNote(noteEntity);
+        tacCaseNoteRepository.save(noteEntity);
+
+        return tacCaseNoteResponseMapper.mapTo(noteEntity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TacCaseNoteResponseDto> getAllNotes(Long caseId) {
+        TacCaseEntity tacCase = tacCaseRepository.findById(caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case not found with id " + caseId));
+
+        return tacCase.getTacCaseNotes().stream()
+                .map(tacCaseNoteResponseMapper::mapTo)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public TacCaseNoteDownloadDto getNote(Long caseId, Long noteId) {
+        TacCaseNoteEntity note = tacCaseNoteRepository.findById(noteId)
+                .filter(a -> a.getTacCase().getId().equals(caseId))
+                .orElseThrow(() -> new ResourceNotFoundException("Note not found with id " + noteId + " for TAC Case " + caseId));
+
+        return tacCaseNoteDownloadMapper.mapTo(note);
+    }
+
+    @Override
+    @Transactional
+    public void deleteNote(Long caseId, Long noteId) {
+        TacCaseNoteEntity note = tacCaseNoteRepository.findById(noteId)
+                .filter(a -> a.getTacCase().getId().equals(caseId))
+                .orElseThrow(() -> new ResourceNotFoundException("Note not found with id " + noteId + " for TAC Case " + caseId));
+
+        tacCaseNoteRepository.delete(note);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAllNotes(Long caseId) {
+        TacCaseEntity tacCase = tacCaseRepository.findById(caseId)
+                .orElseThrow(() -> new ResourceNotFoundException("TAC Case not found with id " + caseId));
+
+        List<TacCaseNoteEntity> notes = tacCase.getTacCaseNotes();
+        if (!notes.isEmpty()) {
+            tacCaseNoteRepository.deleteAll(notes);
         }
     }
 

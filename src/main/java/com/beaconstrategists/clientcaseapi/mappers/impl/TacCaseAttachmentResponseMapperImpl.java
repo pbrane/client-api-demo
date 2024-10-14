@@ -12,6 +12,7 @@ public class TacCaseAttachmentResponseMapperImpl implements TacCaseAttachmentRes
     private final ModelMapper modelMapper;
 
     public TacCaseAttachmentResponseMapperImpl(ModelMapper modelMapper) {
+
         this.modelMapper = modelMapper;
     }
 

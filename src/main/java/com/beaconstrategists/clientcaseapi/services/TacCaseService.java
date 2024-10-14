@@ -1,9 +1,6 @@
 package com.beaconstrategists.clientcaseapi.services;
 
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentDownloadDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentResponseDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseAttachmentUploadDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.TacCaseDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.*;
 
 import java.io.IOException;
 import java.util.List;
@@ -25,7 +22,15 @@ public interface TacCaseService {
     // Attachment Operations
     TacCaseAttachmentResponseDto addAttachment(Long caseId, TacCaseAttachmentUploadDto uploadDto) throws IOException;
     List<TacCaseAttachmentResponseDto> getAllAttachments(Long caseId);
+    TacCaseAttachmentResponseDto getAttachment(Long caseId, Long attachmentId);
     TacCaseAttachmentDownloadDto getAttachmentDownload(Long caseId, Long attachmentId);
     void deleteAttachment(Long caseId, Long attachmentId);
     void deleteAllAttachments(Long caseId);
+
+    // Note Operations
+    TacCaseNoteResponseDto addNote(Long caseId, TacCaseNoteUploadDto uploadDto) throws IOException;
+    List<TacCaseNoteResponseDto> getAllNotes(Long caseId);
+    TacCaseNoteDownloadDto getNote(Long caseId, Long noteId);
+    void deleteNote(Long caseId, Long noteId);
+    void deleteAllNotes(Long caseId);
 }

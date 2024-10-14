@@ -25,6 +25,7 @@ public interface RmaCaseService {
     // Attachment Operations
     RmaCaseAttachmentResponseDto addAttachment(Long caseId, RmaCaseAttachmentUploadDto uploadDto) throws IOException;
     List<RmaCaseAttachmentResponseDto> getAllAttachments(Long caseId);
+    RmaCaseAttachmentResponseDto getAttachment(Long caseId, Long attachmentId);
     RmaCaseAttachmentDownloadDto getAttachmentDownload(Long caseId, Long attachmentId);
     void deleteAttachment(Long caseId, Long attachmentId);
     void deleteAllAttachments(Long caseId);

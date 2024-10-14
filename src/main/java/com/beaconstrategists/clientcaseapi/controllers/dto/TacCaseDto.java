@@ -78,4 +78,6 @@ public class TacCaseDto {
 
     private List<Long> rmaCaseIds;
 
+    private List<Long> noteIds;
+
 }

@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class RmaCaseAttachmentUploadDto {
-    private Long id;
+//    private Long id;
     private String name;
     private String mimeType;
     private String description;

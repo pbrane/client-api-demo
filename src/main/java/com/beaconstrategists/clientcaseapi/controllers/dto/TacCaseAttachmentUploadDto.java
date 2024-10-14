@@ -5,7 +5,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class TacCaseAttachmentUploadDto {
-    private Long id;
+//    private Long id;
     private String name;
     private String mimeType;
     private String description;

@@ -1,15 +1,13 @@
 package com.beaconstrategists.clientcaseapi.services.impl;
 
-import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentDownloadDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentResponseDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentUploadDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.*;
 import com.beaconstrategists.clientcaseapi.exceptions.ResourceNotFoundException;
 import com.beaconstrategists.clientcaseapi.mappers.RmaCaseAttachmentDownloadMapper;
 import com.beaconstrategists.clientcaseapi.mappers.RmaCaseAttachmentResponseMapper;
 import com.beaconstrategists.clientcaseapi.mappers.impl.RmaCaseMapperImpl;
 import com.beaconstrategists.clientcaseapi.model.entities.RmaCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.RmaCaseEntity;
+import com.beaconstrategists.clientcaseapi.model.entities.TacCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.repositories.RmaCaseAttachmentRepository;
 import com.beaconstrategists.clientcaseapi.repositories.RmaCaseRepository;
 import com.beaconstrategists.clientcaseapi.services.RmaCaseService;
@@ -225,6 +223,16 @@ public class RmaCaseServiceImpl implements RmaCaseService {
 
     @Override
     @Transactional(readOnly = true)
+    public RmaCaseAttachmentResponseDto getAttachment(Long caseId, Long attachmentId) {
+        RmaCaseAttachmentEntity attachment = rmaCaseAttachmentRepository.findById(attachmentId)
+                .filter(a -> a.getRmaCase().getId().equals(caseId))
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for TAC Case " + caseId));
+
+        return responseMapper.mapTo(attachment);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public RmaCaseAttachmentDownloadDto getAttachmentDownload(Long caseId, Long attachmentId) {
         RmaCaseAttachmentEntity attachment = rmaCaseAttachmentRepository.findById(attachmentId)
                 .filter(a -> a.getRmaCase().getId().equals(caseId))
@@ -232,7 +240,6 @@ public class RmaCaseServiceImpl implements RmaCaseService {
 
         return downloadMapper.mapTo(attachment);
     }
-
 
     @Override
     @Transactional

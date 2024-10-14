@@ -13,6 +13,7 @@ public class TacCaseAttachmentDownloadMapperImpl implements TacCaseAttachmentDow
     private final ModelMapper modelMapper;
 
     public TacCaseAttachmentDownloadMapperImpl(ModelMapper modelMapper) {
+
         this.modelMapper = modelMapper;
     }
 

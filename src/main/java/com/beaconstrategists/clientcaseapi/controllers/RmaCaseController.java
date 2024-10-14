@@ -118,6 +118,12 @@ public class RmaCaseController {
         return new ResponseEntity<>(attachments, HttpStatus.OK);
     }
 
+    @GetMapping("/{caseId}/attachments/{attachmentId}")
+    public ResponseEntity<RmaCaseAttachmentResponseDto> getAttachment(@PathVariable Long caseId, @PathVariable Long attachmentId) {
+        RmaCaseAttachmentResponseDto attachment = rmaCaseService.getAttachment(caseId, attachmentId);
+        return new ResponseEntity<>(attachment, HttpStatus.OK);
+    }
+
     @DeleteMapping("/{caseId}/attachments/{attachmentId}")
     public ResponseEntity<Void> deleteAttachment(
             @PathVariable Long caseId,

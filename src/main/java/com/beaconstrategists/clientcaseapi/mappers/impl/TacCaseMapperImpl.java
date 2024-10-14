@@ -5,6 +5,7 @@ import com.beaconstrategists.clientcaseapi.mappers.Mapper;
 import com.beaconstrategists.clientcaseapi.model.entities.RmaCaseEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.TacCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.TacCaseEntity;
+import com.beaconstrategists.clientcaseapi.model.entities.TacCaseNoteEntity;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -35,6 +36,11 @@ public class TacCaseMapperImpl implements Mapper<TacCaseEntity, TacCaseDto> {
                 .map(TacCaseAttachmentEntity::getId)
                 .collect(Collectors.toList());
         tacCaseDto.setAttachmentIds(attachmentIds);
+
+        List<Long> noteIds = tacCaseEntity.getTacCaseNotes().stream()
+                .map(TacCaseNoteEntity::getId)
+                .collect(Collectors.toList());
+        tacCaseDto.setNoteIds(noteIds);
 
         return tacCaseDto;
     }
