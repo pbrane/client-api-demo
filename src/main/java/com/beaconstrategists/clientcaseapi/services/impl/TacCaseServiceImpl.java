@@ -92,6 +92,7 @@ public class TacCaseServiceImpl implements TacCaseService {
         return tacCaseRepository.existsByCaseNumber(caseNumber);
     }
 
+/*
     @Override
     @Transactional
     public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
@@ -104,6 +105,45 @@ public class TacCaseServiceImpl implements TacCaseService {
         TacCaseEntity updatedTacCase = tacCaseRepository.save(existingTacCase);
         return tacCaseMapper.mapTo(updatedTacCase);
     }
+*/
+@Override
+public TacCaseDto partialUpdate(Long id, TacCaseDto tacCaseDto) {
+    return tacCaseRepository.findById(id).map(existingTacCase -> {
+        Optional.ofNullable(tacCaseDto.getCaseOwner()).ifPresent(existingTacCase::setCaseOwner);
+        Optional.ofNullable(tacCaseDto.getCasePriority()).ifPresent(existingTacCase::setCasePriority);
+        Optional.ofNullable(tacCaseDto.getCaseStatus()).ifPresent(existingTacCase::setCaseStatus);
+        Optional.ofNullable(tacCaseDto.getAccountNumber()).ifPresent(existingTacCase::setAccountNumber);
+        Optional.ofNullable(tacCaseDto.getCaseNumber()).ifPresent(existingTacCase::setCaseNumber);
+        Optional.ofNullable(tacCaseDto.getAccountNumber()).ifPresent(existingTacCase::setAccountNumber);
+        Optional.ofNullable(tacCaseDto.getBusinessImpact()).ifPresent(existingTacCase::setBusinessImpact);
+        Optional.ofNullable(tacCaseDto.getCaseClosedDate()).ifPresent(existingTacCase::setCaseClosedDate);
+        Optional.ofNullable(tacCaseDto.getCaseCreatedDate()).ifPresent(existingTacCase::setCaseCreatedDate);
+        Optional.ofNullable(tacCaseDto.getCaseNoteCount()).ifPresent(existingTacCase::setCaseNoteCount);
+        Optional.ofNullable(tacCaseDto.getCaseSolutionDescription()).ifPresent(existingTacCase::setCaseSolutionDescription);
+        Optional.ofNullable(tacCaseDto.getContactEmail()).ifPresent(existingTacCase::setContactEmail);
+        Optional.ofNullable(tacCaseDto.getCustomerTrackingNumber()).ifPresent(existingTacCase::setCustomerTrackingNumber);
+        Optional.ofNullable(tacCaseDto.getFaultyPartNumber()).ifPresent(existingTacCase::setFaultyPartNumber);
+        Optional.ofNullable(tacCaseDto.getFaultySerialNumber()).ifPresent(existingTacCase::setFaultySerialNumber);
+        Optional.ofNullable(tacCaseDto.getFirstResponseDate()).ifPresent(existingTacCase::setFirstResponseDate);
+        Optional.ofNullable(tacCaseDto.getHref()).ifPresent(existingTacCase::setHref); //fixme
+        Optional.ofNullable(tacCaseDto.getCustomerTrackingNumber()).ifPresent(existingTacCase::setCustomerTrackingNumber);
+        Optional.ofNullable(tacCaseDto.getInstallationCountry()).ifPresent(existingTacCase::setInstallationCountry);
+        Optional.ofNullable(tacCaseDto.getProblemDescription()).ifPresent(existingTacCase::setProblemDescription);
+        Optional.ofNullable(tacCaseDto.getCaseNoteCount()).ifPresent(existingTacCase::setCaseNoteCount);
+        Optional.ofNullable(tacCaseDto.getProductFirmwareVersion()).ifPresent(existingTacCase::setProductFirmwareVersion);
+        Optional.ofNullable(tacCaseDto.getProductSerialNumber()).ifPresent(existingTacCase::setProductSerialNumber);
+        Optional.ofNullable(tacCaseDto.getProductName()).ifPresent(existingTacCase::setProductName);
+        Optional.ofNullable(tacCaseDto.getProductSoftwareVersion()).ifPresent(existingTacCase::setProductSoftwareVersion);
+        Optional.ofNullable(tacCaseDto.getRelatedDispatchCount()).ifPresent(existingTacCase::setRelatedDispatchCount);
+        Optional.ofNullable(tacCaseDto.getRelatedRmaCount()).ifPresent(existingTacCase::setRelatedRmaCount);
+        Optional.ofNullable(tacCaseDto.getRmaNeeded()).ifPresent(existingTacCase::setRmaNeeded);
+        Optional.ofNullable(tacCaseDto.getSubject()).ifPresent(existingTacCase::setSubject);
+
+        TacCaseEntity updatedTacCase = tacCaseRepository.save(existingTacCase);
+        return tacCaseMapper.mapTo(updatedTacCase);
+    }).orElseThrow(() -> new RuntimeException("TAC Case does not exist"));
+}
+
 
     @Override
     @Transactional

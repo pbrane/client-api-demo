@@ -91,6 +91,7 @@ public class RmaCaseServiceImpl implements RmaCaseService {
         return rmaCaseRepository.existsByCaseNumber(caseNumber);
     }
 
+/*
     @Override
     @Transactional
     public RmaCaseDto partialUpdate(Long id, RmaCaseDto rmaCaseDto) {
@@ -102,6 +103,49 @@ public class RmaCaseServiceImpl implements RmaCaseService {
 
         RmaCaseEntity updatedRmaCase = rmaCaseRepository.save(existingRmaCase);
         return rmaCaseMapper.mapTo(updatedRmaCase);
+    }
+*/
+
+    @Override
+    public RmaCaseDto partialUpdate(Long id, RmaCaseDto rmaCaseDto) {
+        return rmaCaseRepository.findById(id).map(existingRmaCase -> {
+            Optional.ofNullable(rmaCaseDto.getCaseNumber()).ifPresent(existingRmaCase::setCaseNumber);
+            Optional.ofNullable(rmaCaseDto.getCaseStatus()).ifPresent(existingRmaCase::setCaseStatus);
+            Optional.ofNullable(rmaCaseDto.getCustomerTrackingNumber()).ifPresent(existingRmaCase::setCustomerTrackingNumber);
+            Optional.ofNullable(rmaCaseDto.getContactEmail()).ifPresent(existingRmaCase::setContactEmail);
+            Optional.ofNullable(rmaCaseDto.getCustomerTrackingNumber()).ifPresent(existingRmaCase::setCustomerTrackingNumber);
+            Optional.ofNullable(rmaCaseDto.getFailureAnalysisFinishedDate()).ifPresent(existingRmaCase::setFailureAnalysisFinishedDate);
+            Optional.ofNullable(rmaCaseDto.getFailureAnalysisInProgressDate()).ifPresent(existingRmaCase::setFailureAnalysisInProgressDate);
+            Optional.ofNullable(rmaCaseDto.getFailureAnalysisStartDate()).ifPresent(existingRmaCase::setFailureAnalysisStartDate);
+            Optional.ofNullable(rmaCaseDto.getFaultyPartDeliveredDate()).ifPresent(existingRmaCase::setFaultyPartDeliveredDate);
+            Optional.ofNullable(rmaCaseDto.getFaultyPartNumber()).ifPresent(existingRmaCase::setFaultyPartNumber);
+            Optional.ofNullable(rmaCaseDto.getFaultyPartShippedDate()).ifPresent(existingRmaCase::setFaultyPartShippedDate);
+            Optional.ofNullable(rmaCaseDto.getFaultySerialNumber()).ifPresent(existingRmaCase::setFaultySerialNumber);
+            Optional.ofNullable(rmaCaseDto.getHref()).ifPresent(existingRmaCase::setHref);
+            Optional.ofNullable(rmaCaseDto.getInstallationCountry()).ifPresent(existingRmaCase::setInstallationCountry);
+            Optional.ofNullable(rmaCaseDto.getNewPartDeliveredDate()).ifPresent(existingRmaCase::setNewPartDeliveredDate);
+            Optional.ofNullable(rmaCaseDto.getNewPartSerialNumber()).ifPresent(existingRmaCase::setNewPartSerialNumber);
+            Optional.ofNullable(rmaCaseDto.getNewPartShippedDate()).ifPresent(existingRmaCase::setNewPartShippedDate);
+            Optional.ofNullable(rmaCaseDto.getProblemDescription()).ifPresent(existingRmaCase::setProblemDescription);
+            Optional.ofNullable(rmaCaseDto.getRequestType()).ifPresent(existingRmaCase::setRequestType);
+            Optional.ofNullable(rmaCaseDto.getReturnedPartNumber()).ifPresent(existingRmaCase::setReturnedPartNumber);
+            Optional.ofNullable(rmaCaseDto.getReturnedSerialNumber()).ifPresent(existingRmaCase::setReturnedSerialNumber);
+            Optional.ofNullable(rmaCaseDto.getShippedCarrier()).ifPresent(existingRmaCase::setShippedCarrier);
+            Optional.ofNullable(rmaCaseDto.getShippedDate()).ifPresent(existingRmaCase::setShippedDate);
+            Optional.ofNullable(rmaCaseDto.getShipToAttention()).ifPresent(existingRmaCase::setShipToAttention);
+            Optional.ofNullable(rmaCaseDto.getShipToCity()).ifPresent(existingRmaCase::setShipToCity);
+            Optional.ofNullable(rmaCaseDto.getShipToContactEmail()).ifPresent(existingRmaCase::setShipToContactEmail);
+            Optional.ofNullable(rmaCaseDto.getShipToCountry()).ifPresent(existingRmaCase::setShipToCountry);
+            Optional.ofNullable(rmaCaseDto.getShipToPhone()).ifPresent(existingRmaCase::setShipToPhone);
+            Optional.ofNullable(rmaCaseDto.getShipToPostalCode()).ifPresent(existingRmaCase::setShipToPostalCode);
+            Optional.ofNullable(rmaCaseDto.getShipToProvince()).ifPresent(existingRmaCase::setShipToProvince);
+            Optional.ofNullable(rmaCaseDto.getShipToStreet1()).ifPresent(existingRmaCase::setShipToStreet1);
+//            Optional.ofNullable(rmaCaseDto.getTacCaseId()).ifPresent(existingRmaCase::setTacCase);
+            Optional.ofNullable(rmaCaseDto.getVendorRmaNumber()).ifPresent(existingRmaCase::setVendorRmaNumber);
+
+            RmaCaseEntity updatedRmaCase = rmaCaseRepository.save(existingRmaCase);
+            return rmaCaseMapper.mapTo(updatedRmaCase);
+        }).orElseThrow(() -> new RuntimeException("RMA Case does not exist"));
     }
 
     @Override
