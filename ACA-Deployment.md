@@ -48,12 +48,14 @@ az account set --subscription <your-subscription-id>
 ## Create the Azure Container App Environment
 
 ### A few variables
+```bash
 export ENV_NAME=demo-environment
 export RESOURCE_GROUP=MolexProject
 export AZURE_LOCATION=westus
 export CONTAINER_NAME=client-api-demo
 export CONTAINER_IMG=pbranestrategy/client-api-demo:0.0.3
 export API_PORT=8080
+```
 
 ```bash
 az containerapp env create \
