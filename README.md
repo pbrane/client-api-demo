@@ -2,11 +2,11 @@
 
 ## Links to Additional Documentation
 
-- [Client API Documentation](TAC-RMA%20Case%20API%20ReadMe.md)
-- [Azure Container Apps Deployment Guide](ACA-Deployment.md)
-- [Docker Guide](Docker.md)
+- [Client API Documentation](docs/TAC-RMA%20Case%20API%20ReadMe.md)
+- [Azure Container Apps Deployment Guide](docs/ACA-Deployment.md)
+- [Docker Guide](docs/Docker.md)
 
 ---
 ### Deprecated
-- [Azure Spring Apps Deployment Guide](AzureSpringApps.md)
+- [Azure Spring Apps Deployment Guide](docs/AzureSpringApps.md)
 

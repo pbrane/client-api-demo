@@ -1,5 +1,5 @@
 
-# Azure Spring Apps Deployment Guide
+# Azure Container Apps Deployment Guide
 
 This README provides step-by-step instructions for building, testing, and deploying a Spring Boot application using Azure Spring Apps.
 
@@ -64,7 +64,7 @@ az containerapp env create \
   --location $AZURE_LOCATION
 ```
 
-## Now, deploy the container
+## Deploy the Container
 
 ```bash
 az containerapp create \
@@ -76,4 +76,11 @@ az containerapp create \
   --ingress external \
   --min-replicas 1 \
   --max-replicas 3
+```
+
+## Update the Container
+When you need to update the current running container with a new version, in this case, (0.0.4):
+```bash
+export CONTAINER_IMG=pbranestrategy/client-api-demo:0.0.4
+az containerapp update --name client-api-demo --resource-group MolexProject --image $CONTAINER_IMG
 ```
