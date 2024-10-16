@@ -55,6 +55,12 @@ public class RmaCaseEntity {
   private CaseStatus caseStatus;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private OffsetDateTime caseCreatedDate;
+
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+  private OffsetDateTime caseClosedDate;
+
+  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
   private OffsetDateTime newPartShippedDate;
 
   @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

@@ -1,21 +1,27 @@
 package com.beaconstrategists.clientcaseapi.services.impl;
 
-import com.beaconstrategists.clientcaseapi.controllers.dto.*;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentDownloadDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentResponseDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentUploadDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseDto;
 import com.beaconstrategists.clientcaseapi.exceptions.ResourceNotFoundException;
 import com.beaconstrategists.clientcaseapi.mappers.RmaCaseAttachmentDownloadMapper;
 import com.beaconstrategists.clientcaseapi.mappers.RmaCaseAttachmentResponseMapper;
 import com.beaconstrategists.clientcaseapi.mappers.impl.RmaCaseMapperImpl;
+import com.beaconstrategists.clientcaseapi.model.CaseStatus;
 import com.beaconstrategists.clientcaseapi.model.entities.RmaCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.RmaCaseEntity;
-import com.beaconstrategists.clientcaseapi.model.entities.TacCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.repositories.RmaCaseAttachmentRepository;
 import com.beaconstrategists.clientcaseapi.repositories.RmaCaseRepository;
 import com.beaconstrategists.clientcaseapi.services.RmaCaseService;
+import com.beaconstrategists.clientcaseapi.specifications.RmaCaseSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -79,6 +85,30 @@ public class RmaCaseServiceImpl implements RmaCaseService {
 
     @Override
     @Transactional(readOnly = true)
+    public List<RmaCaseDto> listRmaCases(
+            OffsetDateTime caseCreateDateFrom,
+            OffsetDateTime caseCreateDateTo,
+            OffsetDateTime caseCreateDateSince,
+            List<CaseStatus> caseStatus,
+            String logic
+    ) {
+        Specification<RmaCaseEntity> specification = RmaCaseSpecification.buildSpecification(
+                caseCreateDateFrom,
+                caseCreateDateTo,
+                caseCreateDateSince,
+                caseStatus,
+                logic
+        );
+
+        List<RmaCaseEntity> rmaCases = rmaCaseRepository.findAll(specification);
+
+        return rmaCases.stream()
+                .map(rmaCaseMapper::mapTo)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public boolean isExists(Long id) {
         return rmaCaseRepository.existsById(id);
     }
@@ -94,7 +124,7 @@ public class RmaCaseServiceImpl implements RmaCaseService {
     @Transactional
     public RmaCaseDto partialUpdate(Long id, RmaCaseDto rmaCaseDto) {
         RmaCaseEntity existingRmaCase = rmaCaseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("TAC Case does not exist with id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("RMA Case does not exist with id " + id));
 
         // Map updated fields from DTO to existing entity
         rmaCaseMapper.mapFrom(rmaCaseDto, existingRmaCase);
@@ -150,7 +180,7 @@ public class RmaCaseServiceImpl implements RmaCaseService {
     @Transactional
     public RmaCaseDto partialUpdate(String caseNumber, RmaCaseDto rmaCaseDto) {
         RmaCaseEntity existingRmaCase = rmaCaseRepository.findByCaseNumber(caseNumber)
-                .orElseThrow(() -> new ResourceNotFoundException("TAC Case does not exist with case number " + caseNumber));
+                .orElseThrow(() -> new ResourceNotFoundException("RMA Case does not exist with case number " + caseNumber));
 
         // Map updated fields from DTO to existing entity
         rmaCaseMapper.mapFrom(rmaCaseDto, existingRmaCase);
@@ -171,7 +201,7 @@ public class RmaCaseServiceImpl implements RmaCaseService {
     @Transactional
     public void delete(String caseNumber) {
         RmaCaseEntity rmaCase = rmaCaseRepository.findByCaseNumber(caseNumber)
-                .orElseThrow(() -> new ResourceNotFoundException("TAC Case not found with case number " + caseNumber));
+                .orElseThrow(() -> new ResourceNotFoundException("RMA Case not found with case number " + caseNumber));
         rmaCaseRepository.delete(rmaCase);
     }
 
@@ -226,7 +256,7 @@ public class RmaCaseServiceImpl implements RmaCaseService {
     public RmaCaseAttachmentResponseDto getAttachment(Long caseId, Long attachmentId) {
         RmaCaseAttachmentEntity attachment = rmaCaseAttachmentRepository.findById(attachmentId)
                 .filter(a -> a.getRmaCase().getId().equals(caseId))
-                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for TAC Case " + caseId));
+                .orElseThrow(() -> new ResourceNotFoundException("Attachment not found with id " + attachmentId + " for RMA Case " + caseId));
 
         return responseMapper.mapTo(attachment);
     }

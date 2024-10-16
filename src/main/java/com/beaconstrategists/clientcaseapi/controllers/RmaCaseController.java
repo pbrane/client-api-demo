@@ -4,9 +4,11 @@ import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentDown
 import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentResponseDto;
 import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentUploadDto;
 import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseDto;
+import com.beaconstrategists.clientcaseapi.model.CaseStatus;
 import com.beaconstrategists.clientcaseapi.services.RmaCaseService;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -14,7 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,20 +30,42 @@ public class RmaCaseController {
         this.rmaCaseService = rmaCaseService;
     }
 
+/*
     @GetMapping(path = "")
-    public ResponseEntity<List<RmaCaseDto>> listRmaCases(
-            @RequestParam(value = "caseNumber", required = false) String caseNumber) {
-        if (caseNumber != null) {
-            Optional<RmaCaseDto> foundRmaCase = rmaCaseService.findByCaseNumber(caseNumber);
-            return foundRmaCase.map(rmaCaseDto -> ResponseEntity
-                            .ok(Collections.singletonList(rmaCaseDto)))
-                    .orElseGet(() -> ResponseEntity
-                            .status(HttpStatus.NOT_FOUND)
-                            .body(Collections.emptyList()));
-        } else {
-            List<RmaCaseDto> rmaCaseDtos = rmaCaseService.findAll();
-            return ResponseEntity.ok(rmaCaseDtos);
-        }
+    public ResponseEntity<List<RmaCaseDto>> listRmaCases() {
+        List<RmaCaseDto> rmaCaseDtos = rmaCaseService.findAll();
+        return ResponseEntity.ok(rmaCaseDtos);
+    }
+*/
+
+    @GetMapping(path = "")
+    public ResponseEntity<List<RmaCaseDto>> listAllTacCases(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            OffsetDateTime caseCreateDateFrom,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            OffsetDateTime caseCreateDateTo,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            OffsetDateTime caseCreateDateSince,
+
+            @RequestParam(required = false)
+            List<CaseStatus> caseStatus,
+
+            @RequestParam(required = false, defaultValue = "AND")
+            String logic
+    ) {
+        List<RmaCaseDto> rmaCases = rmaCaseService.listRmaCases(
+                caseCreateDateFrom,
+                caseCreateDateTo,
+                caseCreateDateSince,
+                caseStatus,
+                logic
+        );
+        return new ResponseEntity<>(rmaCases, HttpStatus.OK);
     }
 
     @GetMapping(path = "/{id}")

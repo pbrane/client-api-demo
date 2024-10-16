@@ -1,9 +1,11 @@
 package com.beaconstrategists.clientcaseapi.controllers;
 
 import com.beaconstrategists.clientcaseapi.controllers.dto.*;
+import com.beaconstrategists.clientcaseapi.model.CaseStatus;
 import com.beaconstrategists.clientcaseapi.services.TacCaseService;
 import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -11,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -25,20 +28,42 @@ public class TacCaseController {
         this.tacCaseService = tacCaseService;
     }
 
+/*
     @GetMapping(path = "")
-    public ResponseEntity<List<TacCaseDto>> listTacCases(
-            @RequestParam(value = "caseNumber", required = false) String caseNumber) {
-        if (caseNumber != null) {
-            Optional<TacCaseDto> foundTacCase = tacCaseService.findByCaseNumber(caseNumber);
-            return foundTacCase.map(tacCaseDto -> ResponseEntity
-                    .ok(Collections.singletonList(tacCaseDto)))
-                    .orElseGet(() -> ResponseEntity
-                            .status(HttpStatus.NOT_FOUND)
-                            .body(Collections.emptyList()));
-        } else {
+    public ResponseEntity<List<TacCaseDto>> listTacCases() {
             List<TacCaseDto> tacCaseDtos = tacCaseService.findAll();
             return ResponseEntity.ok(tacCaseDtos);
-        }
+    }
+*/
+
+    @GetMapping(path = "")
+    public ResponseEntity<List<TacCaseDto>> listAllTacCases(
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            OffsetDateTime caseCreateDateFrom,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            OffsetDateTime caseCreateDateTo,
+
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            OffsetDateTime caseCreateDateSince,
+
+            @RequestParam(required = false)
+            List<CaseStatus> caseStatus,
+
+            @RequestParam(required = false, defaultValue = "AND")
+            String logic
+    ) {
+        List<TacCaseDto> tacCases = tacCaseService.listTacCases(
+                caseCreateDateFrom,
+                caseCreateDateTo,
+                caseCreateDateSince,
+                caseStatus,
+                logic
+        );
+        return new ResponseEntity<>(tacCases, HttpStatus.OK);
     }
 
     @GetMapping(path = "/{id}")

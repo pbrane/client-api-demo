@@ -1,11 +1,13 @@
 package com.beaconstrategists.clientcaseapi.services;
 
 import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentDownloadDto;
-import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentUploadDto;
 import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentResponseDto;
+import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseAttachmentUploadDto;
 import com.beaconstrategists.clientcaseapi.controllers.dto.RmaCaseDto;
+import com.beaconstrategists.clientcaseapi.model.CaseStatus;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,4 +31,11 @@ public interface RmaCaseService {
     RmaCaseAttachmentDownloadDto getAttachmentDownload(Long caseId, Long attachmentId);
     void deleteAttachment(Long caseId, Long attachmentId);
     void deleteAllAttachments(Long caseId);
+
+    List<RmaCaseDto> listRmaCases(OffsetDateTime caseCreateDateFrom,
+                                  OffsetDateTime caseCreateDateTo,
+                                  OffsetDateTime caseCreateDateSince,
+                                  List<CaseStatus> caseStatus,
+                                  String logic);
+
 }

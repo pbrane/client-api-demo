@@ -7,6 +7,7 @@ import com.beaconstrategists.clientcaseapi.mappers.TacCaseAttachmentResponseMapp
 import com.beaconstrategists.clientcaseapi.mappers.TacCaseNoteDownloadMapper;
 import com.beaconstrategists.clientcaseapi.mappers.TacCaseNoteResponseMapper;
 import com.beaconstrategists.clientcaseapi.mappers.impl.TacCaseMapperImpl;
+import com.beaconstrategists.clientcaseapi.model.CaseStatus;
 import com.beaconstrategists.clientcaseapi.model.entities.RmaCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.TacCaseAttachmentEntity;
 import com.beaconstrategists.clientcaseapi.model.entities.TacCaseEntity;
@@ -15,11 +16,14 @@ import com.beaconstrategists.clientcaseapi.repositories.TacCaseAttachmentReposit
 import com.beaconstrategists.clientcaseapi.repositories.TacCaseNoteRepository;
 import com.beaconstrategists.clientcaseapi.repositories.TacCaseRepository;
 import com.beaconstrategists.clientcaseapi.services.TacCaseService;
+import com.beaconstrategists.clientcaseapi.specifications.TacCaseSpecification;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.OffsetDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -86,6 +90,30 @@ public class TacCaseServiceImpl implements TacCaseService {
     public Optional<TacCaseDto> findByCaseNumber(String caseNumber) {
         return tacCaseRepository.findByCaseNumber(caseNumber)
                 .map(tacCaseMapper::mapTo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<TacCaseDto> listTacCases(
+            OffsetDateTime caseCreateDateFrom,
+            OffsetDateTime caseCreateDateTo,
+            OffsetDateTime caseCreateDateSince,
+            List<CaseStatus> caseStatus,
+            String logic
+    ) {
+        Specification<TacCaseEntity> specification = TacCaseSpecification.buildSpecification(
+                caseCreateDateFrom,
+                caseCreateDateTo,
+                caseCreateDateSince,
+                caseStatus,
+                logic
+        );
+
+        List<TacCaseEntity> tacCases = tacCaseRepository.findAll(specification);
+
+        return tacCases.stream()
+                .map(tacCaseMapper::mapTo)
+                .collect(Collectors.toList());
     }
 
     @Override
